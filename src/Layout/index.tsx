@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Menu from "../components/Menu";
 import Header from "../components/Header";
-import { container, header } from "./css";
+import { container } from "./css";
 import { cx } from "emotion";
-import { useMediaQuery, Theme, CssBaseline } from "@material-ui/core";
+import { Theme } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import Routes from "../routes";
 import { LOGOUT } from "../provider/names";
@@ -29,7 +29,7 @@ function Layout() {
     return () => {
       window.removeEventListener("__logout", () => void 0);
     };
-  }, []);
+  }, [account]);
 
   const isSmallDevice = false;
   const [open, setOpen] = useState(!isSmallDevice);

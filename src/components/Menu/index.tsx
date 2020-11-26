@@ -4,9 +4,7 @@ import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
 import ListItem from "@material-ui/core/ListItem";
 import I18n from "../../I18n";
-import AuthWrapper from "../AuthWrapper";
 import {
-  Button,
   Theme,
   colors,
   ListItemText,

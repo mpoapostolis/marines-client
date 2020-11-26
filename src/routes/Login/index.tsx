@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
-import I18n from '../../I18n';
+import React, { useContext, useEffect, useState, useCallback } from "react";
+import I18n from "../../I18n";
 import {
   Card,
   Typography,
@@ -7,27 +7,27 @@ import {
   TextField,
   Button,
   Divider,
-  CardMedia
-} from '@material-ui/core';
+  CardMedia,
+} from "@material-ui/core";
 import {
   cardContainer,
   loginContainer,
   card,
   media,
   content,
-  btn
-} from './css';
-import CardHeader from '@material-ui/core/CardHeader';
-import { format } from 'date-fns/esm';
-import LockIcon from './LockIcon';
-import * as R from 'ramda';
-import { useHistory } from 'react-router-dom';
-import { useAccount } from '../../provider';
-import ky from 'ky';
-import { LOGIN } from '../../provider/names';
-const dateNow = format(new Date(), 'EEEE dd MMMM yyyy');
+  btn,
+} from "./css";
+import CardHeader from "@material-ui/core/CardHeader";
+import { format } from "date-fns/esm";
+import LockIcon from "./LockIcon";
+import * as R from "ramda";
+import { useHistory } from "react-router-dom";
+import { useAccount } from "../../provider";
+import ky from "ky";
+import { LOGIN } from "../../provider/names";
+const dateNow = format(new Date(), "EEEE dd MMMM yyyy");
 
-const URL = '/api/users/login';
+const URL = "/api/users/login";
 
 type Creds = {
   user_name: string;
@@ -43,8 +43,8 @@ const Login = () => {
   const account = useAccount();
   const token = account.token;
   const [infos, setInfos] = useState({
-    user_name: '',
-    password: ''
+    user_name: "",
+    password: "",
   });
   const [err, setErr] = useState({});
 
@@ -52,21 +52,24 @@ const Login = () => {
     setInfos((s) => ({ ...s, ...obj }));
   }, []);
 
-  const handleSubmit = useCallback((infos: Creds) => {
-    setErr({});
-    return login(infos)
-      .then((res) => res.json())
-      .then((data) => {
-        if ('error' in data) setErr(data.error);
-        account.dispatch({ type: LOGIN, payload: data });
-      })
-      .catch((err) => setErr({ ...err }));
-  }, []);
+  const handleSubmit = useCallback(
+    (infos: Creds) => {
+      setErr({});
+      return login(infos)
+        .then((res) => res.json())
+        .then((data) => {
+          if ("error" in data) setErr(data.error);
+          account.dispatch({ type: LOGIN, payload: data });
+        })
+        .catch((err) => setErr({ ...err }));
+    },
+    [account]
+  );
 
   const history = useHistory();
   useEffect(() => {
-    if (Boolean(token)) history.push('/');
-  }, [token]);
+    if (Boolean(token)) history.push("/");
+  }, [token, history]);
 
   return (
     <div className={loginContainer}>
@@ -75,26 +78,26 @@ const Login = () => {
           e.preventDefault();
           handleSubmit(infos);
         }}
-        className={cardContainer}>
+        className={cardContainer}
+      >
         <LockIcon />
         <Card classes={{ root: card }} elevation={3}>
           <CardContent classes={{ root: content }}>
             <CardHeader
-              title={<Typography variant="h3">{t('int.login')}</Typography>}
-              subheader={
-                <Typography variant="caption">{dateNow}</Typography>
-              }></CardHeader>
+              title={<Typography variant="h3">{t("int.login")}</Typography>}
+              subheader={<Typography variant="caption">{dateNow}</Typography>}
+            ></CardHeader>
             <br />
             <br />
             <TextField
               onChange={(evt) =>
                 handleChange({
-                  user_name: evt.currentTarget.value
+                  user_name: evt.currentTarget.value,
                 })
               }
-              error={Boolean(R.propOr('', 'user_name', err))}
-              helperText={R.propOr('', 'user_name', err)}
-              label={t('int.user_name')}
+              error={Boolean(R.propOr("", "user_name", err))}
+              helperText={R.propOr("", "user_name", err)}
+              label={t("int.user_name")}
               required
               variant="outlined"
               fullWidth
@@ -104,13 +107,13 @@ const Login = () => {
             <TextField
               onChange={(evt) =>
                 handleChange({
-                  password: evt.currentTarget.value
+                  password: evt.currentTarget.value,
                 })
               }
               type="password"
-              error={Boolean(R.propOr('', 'password', err))}
-              helperText={R.propOr('', 'password', err)}
-              label={t('int.password')}
+              error={Boolean(R.propOr("", "password", err))}
+              helperText={R.propOr("", "password", err)}
+              label={t("int.password")}
               required
               variant="outlined"
               fullWidth
@@ -124,8 +127,9 @@ const Login = () => {
               size="large"
               variant="contained"
               color="secondary"
-              fullWidth>
-              {t('int.login')}
+              fullWidth
+            >
+              {t("int.login")}
             </Button>
           </CardContent>
           <CardMedia
