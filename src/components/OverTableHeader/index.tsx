@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type Props = {
   title?: string;
-  actions?: ReactNode[];
+  actions?: ReactNode;
   goBack?: boolean;
 };
 

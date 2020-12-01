@@ -30,6 +30,7 @@
     "clsx": "^1.0.4",
     "date-fns": "^2.8.1",
     "emotion": "^10.0.27",
+    "formik": "^2.2.5",
     "jwt-decode": "^2.2.0",
     "ky": "^0.16.1",
     "query-string": "^6.9.0",

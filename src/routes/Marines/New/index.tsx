@@ -8,59 +8,86 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  Container,
   Typography,
+  Grid,
 } from "@material-ui/core";
 import { useI18n } from "../../../I18n";
 import OverTableHeader from "../../../components/OverTableHeader";
+import { useFormik } from "formik";
+
+import { useMutation } from "react-query";
+import { createNewMarine, Marine } from "../../../api/marines";
 
 const useStyles = makeStyles((theme: Theme) => ({
   paper: {
-    width: "50%",
-  },
-  fieldCont: {
     padding: theme.spacing(2),
   },
+  fieldCont: {},
 }));
 
 function New() {
+  const [saveMarine] = useMutation(createNewMarine, {});
+
+  const formik = useFormik<Marine>({
+    initialValues: {
+      name: "name",
+    },
+    onSubmit: (values) => {
+      saveMarine(values);
+    },
+  });
+
   const t = useI18n();
   const styles = useStyles();
+
   return (
     <>
       <OverTableHeader
         goBack
-        actions={[
-          <Button size="small" variant="outlined">
-            {t("int.save")}
-          </Button>,
-        ]}
-      />{" "}
+        actions={
+          <>
+            <Button
+              size="small"
+              onClick={() => formik.handleSubmit()}
+              disabled={!Boolean(formik.values.name)}
+              variant="outlined"
+            >
+              {t("int.save")}
+            </Button>
+          </>
+        }
+      />
       <br />
-      <Paper className={styles.paper}>
-        <ListItem>
-          <ListItemText
-            primary={
-              <Typography variant="h5">{t("int.create-new-info")}</Typography>
-            }
-            secondary={
-              <Typography variant="subtitle2">
-                {t("int.fill-all-required-fields")}
-              </Typography>
-            }
-          />
-        </ListItem>
-        <Divider />
+      <Grid xs={12} md={5} item container component={Paper}>
+        <Grid item xs={12}>
+          <ListItem>
+            <ListItemText
+              primary={
+                <Typography variant="h5">{t("int.create-new-info")}</Typography>
+              }
+              secondary={
+                <Typography variant="subtitle2">
+                  {t("int.fill-all-required-fields")}
+                </Typography>
+              }
+            />
+          </ListItem>
+          <Divider />
+        </Grid>
 
-        <Container className={styles.fieldCont}>
+        <Grid className={styles.paper} xs={12} item>
           <TextField
+            id="name"
+            name="name"
+            onChange={formik.handleChange}
+            value={formik.values.name}
             label={t("int.vessel-name")}
             fullWidth
             variant="outlined"
             margin="dense"
           />
-        </Container>
-      </Paper>
+        </Grid>
+      </Grid>
     </>
   );
 }
