@@ -11,12 +11,11 @@ import { useAccount } from "../provider";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
+    marginTop: theme.spacing(2),
     padding: theme.spacing(3),
     gridArea: "main",
   },
-  content: {
-    marginTop: theme.spacing(2),
-  },
+  content: {},
 }));
 
 function Layout() {
@@ -49,9 +48,7 @@ function Layout() {
         setOpen={() => setOpen(false)}
       />
       <main className={classes.root}>
-        <div className={classes.content}>
-          <Routes />
-        </div>
+        <Routes />
       </main>
     </div>
   );

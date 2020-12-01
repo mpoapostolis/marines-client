@@ -20,5 +20,4 @@ export const header = css`
 
 export const main = css`
   grid-area: main;
-  border: solid 1px red;
 `;

@@ -3,13 +3,13 @@ import { Switch, Route } from "react-router";
 import List from "./List";
 import New from "./New";
 
-function Spots() {
+function Marines() {
   return (
     <Switch>
-      <Route path="/spots" exact component={List} />
-      <Route path="/spots/:id" exact component={New} />
+      <Route path="/marines" exact component={List} />
+      <Route path="/marines/:id" exact component={New} />
     </Switch>
   );
 }
 
-export default Spots;
+export default Marines;

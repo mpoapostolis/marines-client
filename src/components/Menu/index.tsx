@@ -18,6 +18,7 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import Profile from "./Profiles";
 import LocalParkingIcon from "@material-ui/icons/LocalParking";
+import DirectionsBoatIcon from "@material-ui/icons/DirectionsBoat";
 
 const useStyles = makeStyles((theme: Theme) => ({
   drawer: {
@@ -101,6 +102,13 @@ function Menu(props: Props) {
       title: t("int.spots"),
       href: "/spots",
       icon: <LocalParkingIcon fontSize="small" />,
+      perm: [],
+    },
+
+    {
+      title: t("int.marines"),
+      href: "/marines",
+      icon: <DirectionsBoatIcon fontSize="small" />,
       perm: [],
     },
 

@@ -1,7 +1,7 @@
 const proxy = require('http-proxy-middleware');
 
 // const target = 'http://localhost:4000';
-const target = 'http://167.172.131.114:4000';
+const target = 'https://marines-serveless.vercel.app';
 
 module.exports = function (app) {
   app.use(
