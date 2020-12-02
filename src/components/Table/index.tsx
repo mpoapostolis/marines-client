@@ -18,6 +18,7 @@ import Paper from "@material-ui/core/Paper";
 import { useHistory } from "react-router-dom";
 import { getTableParams } from "../../utils";
 import qs from "query-string";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -29,6 +30,9 @@ const useStyles = makeStyles((theme: Theme) =>
       marginBottom: theme.spacing(2),
     },
     table: {
+      "&.loading": {
+        opacity: 0.5,
+      },
       minWidth: 750,
     },
     visuallyHidden: {
@@ -41,6 +45,12 @@ const useStyles = makeStyles((theme: Theme) =>
       position: "absolute",
       top: 20,
       width: 1,
+    },
+
+    row: {
+      "&.loading": {
+        opacity: 0.5,
+      },
     },
 
     rootHeader: {
@@ -63,7 +73,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type Props = {
   conf: Columns;
+  loading?: boolean;
   data: Data;
+  total: number;
 };
 
 function MTable(props: Props) {
@@ -82,6 +94,8 @@ function MTable(props: Props) {
     history.push({
       search: qs.stringify({ ...params, offset }),
     });
+
+  console.log(props.loading);
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -113,7 +127,12 @@ function MTable(props: Props) {
 
             <TableBody>
               {props.data.map((row, idx) => (
-                <TableRow key={idx} hover tabIndex={-1}>
+                <TableRow
+                  className={clsx([classes.row, props.loading && "loading"])}
+                  key={idx}
+                  hover
+                  tabIndex={-1}
+                >
                   {props.conf.map((column, idx) => (
                     <TableCell key={idx}>
                       {"render" in column
@@ -129,7 +148,7 @@ function MTable(props: Props) {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={props.data.length}
+          count={props.total}
           rowsPerPage={params.limit}
           page={params.offset}
           onChangePage={handleChangePage}

@@ -1,20 +1,42 @@
 import React from "react";
 import { useI18n } from "../../../I18n";
-
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
 import OverTableHeader from "../../../components/OverTableHeader";
-import { Link } from "react-router-dom";
-import { Button } from "@material-ui/core";
-import { getMarines, Marine } from "../../../api/marines";
-import { usePaginatedQuery } from "react-query";
+import { Link, useHistory } from "react-router-dom";
+import { Button, IconButton } from "@material-ui/core";
+import { deleteMarine, getMarines, Marine } from "../../../api/marines";
+import { queryCache, useMutation, usePaginatedQuery } from "react-query";
 import MTable from "../../../components/Table";
 import { Columns } from "../../../components/Table/types";
-import { formatDate } from "../../../utils";
+import { formatDate, getTableParams } from "../../../utils";
+import { useSnack } from "../../../provider/SnackBarProvider";
 
 function List() {
-  const { resolvedData: marines = [] } = usePaginatedQuery(
-    "marines",
-    getMarines
-  );
+  const setSnack = useSnack();
+  const history = useHistory();
+  const params = getTableParams(history.location.search);
+  const {
+    resolvedData: marines = { total: 0, data: [] },
+    isFetching,
+  } = usePaginatedQuery(["marines", params], getMarines);
+
+  const [_deleteMarine] = useMutation(deleteMarine, {
+    onSuccess: () => {
+      setSnack({
+        msg: t("int.marine-deleted-successfully"),
+        severity: "success",
+      });
+      queryCache.invalidateQueries("marines");
+    },
+    onError: () => {
+      setSnack({
+        msg: t("int.oops-something-went-wrong"),
+        severity: "error",
+      });
+    },
+  });
+
   const t = useI18n();
 
   const conf: Columns = [
@@ -22,6 +44,24 @@ function List() {
     {
       title: t("int.date-created"),
       render: (obj: Marine) => formatDate(obj.date_created),
+    },
+    {
+      title: t("int.actions"),
+      render: (obj: Marine) => (
+        <>
+          <IconButton size={"small"} title={t("int.edit")}>
+            <EditIcon />
+          </IconButton>
+          &nbsp; &nbsp;
+          <IconButton
+            onClick={() => _deleteMarine(obj.id)}
+            size={"small"}
+            title={t("int.delete")}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </>
+      ),
     },
   ];
 
@@ -43,7 +83,7 @@ function List() {
         }
       />
       <br />
-      <MTable conf={conf} data={marines} />
+      <MTable loading={isFetching} conf={conf} {...marines} />
     </>
   );
 }
