@@ -12,10 +12,8 @@ import I18n from "./I18n";
 import Login from "./routes/Login";
 import Layout from "./Layout";
 // import PrivateRoute from "./components/PrivateRoute";
-import "react-toastify/dist/ReactToastify.css";
-import { toast } from "react-toastify";
 import AccountProvider, { useAccount } from "./provider";
-toast.configure();
+import SnackBarProvider from "./provider/SnackBarProvider";
 
 function LoginWrapper(props: RouteProps) {
   const account = useAccount();
@@ -30,10 +28,12 @@ function App() {
       <I18n.Provider value={t}>
         <AccountProvider>
           <BrowserRouter>
-            <Switch>
-              <LoginWrapper exact path="/login" component={Login} />
-              <Route path="/" component={Layout} />
-            </Switch>
+            <SnackBarProvider>
+              <Switch>
+                <LoginWrapper exact path="/login" component={Login} />
+                <Route path="/" component={Layout} />
+              </Switch>
+            </SnackBarProvider>
           </BrowserRouter>
         </AccountProvider>
       </I18n.Provider>

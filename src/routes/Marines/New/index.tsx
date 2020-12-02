@@ -17,6 +17,8 @@ import { useFormik } from "formik";
 
 import { useMutation } from "react-query";
 import { createNewMarine, Marine } from "../../../api/marines";
+import { useHistory } from "react-router-dom";
+import { useSnack } from "../../../provider/SnackBarProvider";
 
 const useStyles = makeStyles((theme: Theme) => ({
   paper: {
@@ -26,19 +28,36 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 function New() {
-  const [saveMarine] = useMutation(createNewMarine, {});
+  const t = useI18n();
+  const styles = useStyles();
+  const history = useHistory();
+
+  const setSnack = useSnack();
+
+  const [saveMarine] = useMutation(createNewMarine, {
+    onSuccess: () => {
+      setSnack({
+        msg: t("int.marine-created-successfully"),
+        severity: "success",
+      });
+      history.push("/marines");
+    },
+    onError: () => {
+      setSnack({
+        msg: t("int.oops-something-went-wrong"),
+        severity: "error",
+      });
+    },
+  });
 
   const formik = useFormik<Marine>({
     initialValues: {
-      name: "name",
+      name: "",
     },
     onSubmit: (values) => {
       saveMarine(values);
     },
   });
-
-  const t = useI18n();
-  const styles = useStyles();
 
   return (
     <>
@@ -49,7 +68,7 @@ function New() {
             <Button
               size="small"
               onClick={() => formik.handleSubmit()}
-              disabled={!Boolean(formik.values.name)}
+              disabled={!Boolean(formik.dirty)}
               variant="outlined"
             >
               {t("int.save")}
@@ -58,7 +77,7 @@ function New() {
         }
       />
       <br />
-      <Grid xs={12} md={5} item container component={Paper}>
+      <Grid xs={12} lg={5} item container component={Paper}>
         <Grid item xs={12}>
           <ListItem>
             <ListItemText

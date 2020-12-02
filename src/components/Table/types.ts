@@ -1,6 +1,6 @@
 export type ColumnWithField = {
   title: string;
-  field: string;
+  key: string;
 };
 
 export type ColumnWithRender = {

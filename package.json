@@ -26,9 +26,10 @@
   "dependencies": {
     "@material-ui/core": "^4.11.1",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "@types/ramda": "^0.27.14",
     "clsx": "^1.0.4",
-    "date-fns": "^2.8.1",
+    "date-fns": "^2.16.1",
     "emotion": "^10.0.27",
     "formik": "^2.2.5",
     "jwt-decode": "^2.2.0",
@@ -39,8 +40,7 @@
     "react-dom": "^16.14.0",
     "react-query": "^2.26.3",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.4",
-    "react-toastify": "^5.5.0"
+    "react-scripts": "^3.4.4"
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
