@@ -82,8 +82,10 @@ function MTable(props: Props) {
   const classes = useStyles();
   const history = useHistory();
 
-  const params = getTableParams(history.location.search);
+  const tableParams = getTableParams(history.location.search);
+  const allParams = qs.parse(history.location.search);
 
+  const params = { ...tableParams, ...allParams };
   useEffect(() => {
     history.replace({
       search: qs.stringify(params),
@@ -94,8 +96,6 @@ function MTable(props: Props) {
     history.push({
       search: qs.stringify({ ...params, offset }),
     });
-
-  console.log(props.loading);
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>

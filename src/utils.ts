@@ -42,6 +42,8 @@ export type TableParams = {
   sort?: string;
 };
 
+export const getAllParams = (q: string) => qs.parse(q);
+
 export const getTableParams = (q: string) => {
   const obj = R.pickAll<qs.ParsedQuery<string>, TableParams>(
     ["offset", "limit", "searchTerm", "sort"],
