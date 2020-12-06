@@ -92,16 +92,21 @@ function MTable(props: Props) {
     });
   }, []); // eslint-disable-line
 
-  const handleChangePage = (_event: unknown, offset: number) =>
+  const handleChangePage = (_event: unknown, offset: number) => {
     history.push({
-      search: qs.stringify({ ...params, offset }),
+      search: qs.stringify({ ...params, offset: offset * +params.limit }),
     });
+  };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) =>
     history.push({
-      search: qs.stringify({ ...params, offset: 0, limit: event.target.value }),
+      search: qs.stringify({
+        ...params,
+        offset: 0,
+        limit: Number(event.target.value),
+      }),
     });
 
   const headers = useMemo(() => props.conf.map((col) => col.title), [
@@ -148,9 +153,9 @@ function MTable(props: Props) {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={props.total}
-          rowsPerPage={params.limit}
-          page={params.offset}
+          count={+props.total || 100}
+          rowsPerPage={+params.limit}
+          page={+params.offset / +params.limit}
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />

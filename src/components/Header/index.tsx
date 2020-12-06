@@ -16,14 +16,7 @@ function Header() {
   return (
     <>
       <CssBaseline />
-      <AppBar
-        elevation={2}
-        style={{
-          background: "#486493",
-        }}
-        position="fixed"
-        className={classes.appBar}
-      >
+      <AppBar elevation={2} position="fixed" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" noWrap>
             Clipped drawer

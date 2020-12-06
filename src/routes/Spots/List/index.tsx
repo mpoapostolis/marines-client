@@ -80,7 +80,7 @@ function List() {
               to={"/spots/new"}
               variant="outlined"
             >
-              {t("int.create-new-marine")}
+              {t("int.create-new-spot")}
             </Button>
           </>
         }

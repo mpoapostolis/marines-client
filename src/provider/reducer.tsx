@@ -1,7 +1,7 @@
-import { LOGIN, LOGOUT } from './names';
-import JwtDecode from 'jwt-decode';
+import { LOGIN, LOGOUT } from "./names";
+// import JwtDecode from "jwt-decode";
 
-export const LOCAL_STORAGE_AUTH_KEY = 'slourp_acount_key';
+export const LOCAL_STORAGE_AUTH_KEY = "slourp_acount_key";
 
 export const setKey = (payload: Record<string, any>) =>
   localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, JSON.stringify(payload));
@@ -40,21 +40,21 @@ export const initState: Store = loadKey() || {};
 function reducer(state: Store, action: Action) {
   switch (action.type) {
     case LOGIN:
-      const { exp: expToken } = JwtDecode(action?.payload?.token);
-      const { exp: expRToken } = JwtDecode(action?.payload.refresh_token);
+      // const { exp: expToken } = JwtDecode(action?.payload?.token);
+      // const { exp: expRToken } = JwtDecode(action?.payload.refresh_token);
       setKey({
         ...action.payload,
-        expToken: expToken * 1000,
-        expRToken: expRToken * 1000
+        // expToken: expToken * 1000,
+        // expRToken: expRToken * 1000
       });
       return {
         ...state,
         ...action.payload,
-        expToken: expToken * 1000,
-        expRToken: expRToken * 1000
+        // expToken: expToken * 1000,
+        // expRToken: expRToken * 1000,
       };
     case LOGOUT:
-      clearKey('__account');
+      clearKey("__account");
       return undefined;
 
     default:

@@ -1,10 +1,10 @@
-import React, { createContext, useReducer, useContext } from 'react';
-import reducer, { Store, initState } from './reducer';
+import React, { createContext, useReducer, useContext } from "react";
+import reducer, { Store, initState } from "./reducer";
 
 export type ProviderType = Store & { dispatch: any };
 export const Account = createContext<ProviderType>({
   ...initState,
-  dispatch: () => 0
+  dispatch: () => 0,
 });
 
 type Props = {

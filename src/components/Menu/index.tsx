@@ -11,6 +11,7 @@ import {
   ListItemIcon,
   Typography,
   CssBaseline,
+  Box,
 } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/styles";
@@ -33,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   listItem: {
     padding: theme.spacing(1, 2),
+    color: `${theme.palette.text.disabled}`,
   },
 
   button: {
@@ -58,7 +60,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "#38578b",
+    background: theme.palette.primary.dark,
     border: "none",
     ...theme.mixins.toolbar,
   },
@@ -66,11 +68,14 @@ const useStyles = makeStyles((theme: Theme) => ({
   active: {
     color: theme.palette.primary.main,
     fontWeight: theme.typography.fontWeightMedium,
-    borderLeft: "5px solid #38578b",
+    borderLeft: `5px solid ${theme.palette.primary.main}`,
     background: "#38578b15",
     flexGrow: 1,
-    "& $icon": {
-      color: theme.palette.primary.main,
+    "& .icon": {
+      color: `${theme.palette.primary.main}`,
+    },
+    "& .typography": {
+      color: `${theme.palette.primary.main}`,
     },
   },
 }));
@@ -93,7 +98,7 @@ function Menu(props: Props) {
     {
       title: t("int.dashboard"),
       href: "/",
-      icon: <DashboardIcon fontSize="small" />,
+      icon: <DashboardIcon className="icon" fontSize="small" />,
       exact: true,
       perm: [],
       //   perm: ['report:view']
@@ -101,21 +106,21 @@ function Menu(props: Props) {
     {
       title: t("int.spots"),
       href: "/spots",
-      icon: <LocalParkingIcon fontSize="small" />,
+      icon: <LocalParkingIcon className="icon" fontSize="small" />,
       perm: [],
     },
 
     {
       title: t("int.marines"),
       href: "/marines",
-      icon: <DirectionsBoatIcon fontSize="small" />,
+      icon: <DirectionsBoatIcon className="icon" fontSize="small" />,
       perm: [],
     },
 
     {
       title: t("int.history"),
       href: "/history",
-      icon: <TimelineIcon fontSize="small" />,
+      icon: <TimelineIcon className="icon" fontSize="small" />,
       perm: [],
     },
   ];
@@ -128,7 +133,7 @@ function Menu(props: Props) {
       open={props.open}
     >
       <CssBaseline />
-      <div className={classes.toolbar} />
+      <Box className={classes.toolbar} />
 
       <Divider className={classes.divider} />
       <div className={classes.root}>
@@ -149,7 +154,15 @@ function Menu(props: Props) {
             >
               <ListItemIcon>{page.icon}</ListItemIcon>
               <ListItemText
-                primary={<Typography variant="h6">{page.title}</Typography>}
+                primary={
+                  <Typography
+                    className="typography"
+                    color="textSecondary"
+                    variant="h6"
+                  >
+                    {page.title}
+                  </Typography>
+                }
               />
             </ListItem>
           ))}

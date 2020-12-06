@@ -30,6 +30,15 @@ function Layout() {
     };
   }, [account]);
 
+  // const login = async () => {
+  //   const payload = await getUserInfo();
+  //   account.dispatch({ type: LOGIN, payload });
+  // };
+
+  useEffect(() => {
+    // login();
+  }, []);
+
   const isSmallDevice = false;
   const [open, setOpen] = useState(!isSmallDevice);
   const classes = useStyles();
