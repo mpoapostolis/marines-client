@@ -9,31 +9,48 @@ import {
   Typography,
   ListItemSecondaryAction,
   List,
+  TextField,
+  Box,
+  Grid,
+  FormControl,
 } from "@material-ui/core";
 import { useI18n } from "../../../I18n";
 import OverTableHeader from "../../../components/OverTableHeader";
 import { useFormik } from "formik";
 
-import { useMutation } from "react-query";
-import { createNewMarine } from "../../../api/marines";
-import { useHistory } from "react-router-dom";
-
-import { useSnack } from "../../../provider/SnackBarProvider";
 import "leaflet/dist/leaflet.css";
 
 import { MapContainer, TileLayer, Polygon, SVGOverlay } from "react-leaflet";
 import { LeafletMouseEvent, Map } from "leaflet";
+import { cx } from "emotion";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "grid",
-    gridTemplateColumns: "1fr",
-    gridRowGap: "30px",
+    display: "flex",
     width: "100%",
+    flexDirection: "column",
+    gridGap: "20px",
     [theme.breakpoints.up("lg")]: {
-      gridColumnGap: "20px",
+      flexDirection: "row",
       gridTemplateColumns: "repeat(2, 1fr)",
     },
+  },
+
+  section: {
+    flex: 1,
+    height: "100%",
+    "&.map": {
+      position: "sticky",
+      top: "70px",
+    },
+  },
+  form: {
+    display: "grid",
+    padding: theme.spacing(2),
+  },
+
+  servicesCont: {
+    padding: theme.spacing(1, 0),
   },
   mapContainer: {
     width: "100%",
@@ -43,10 +60,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+type Service = {
+  name: string;
+  description: string;
+};
+type SpotInfo = {
+  name: string;
+  price: number;
+  length: number;
+  draught: number;
+  services: Service[];
+};
+
 function New() {
   const t = useI18n();
   const classes = useStyles();
-  const history = useHistory();
   const [map, setMap] = useState<Map>();
   const [polyLine, setPolyLine] = useState<LeafletMouseEvent[]>([]);
   const [drawing, setDrawing] = useState(false);
@@ -82,32 +110,32 @@ function New() {
     };
   }, [map, drawing, handleMapClick, toggleDraw, lineRef]);
 
-  const setSnack = useSnack();
-
-  const [saveMarine] = useMutation(createNewMarine, {
-    onSuccess: () => {
-      setSnack({
-        msg: t("int.marine-created-successfully"),
-        severity: "success",
-      });
-      history.push("/marines");
-    },
-    onError: () => {
-      setSnack({
-        msg: t("int.oops-something-went-wrong"),
-        severity: "error",
-      });
-    },
-  });
-
-  const formik = useFormik({
+  const formik = useFormik<SpotInfo>({
     initialValues: {
       name: "",
+      price: 0,
+      length: 0,
+      draught: 0,
+      services: [],
     },
-    onSubmit: (values) => {
-      saveMarine(values);
-    },
+
+    onSubmit: (values) => {},
   });
+
+  const addNewService = () => {
+    formik.setValues((v) => ({
+      ...v,
+      services: [
+        ...v.services,
+        {
+          name: "",
+          description: "",
+        },
+      ],
+    }));
+  };
+
+  console.log(formik.values);
 
   const lastPoint = polyLine.length > 0 && polyLine[polyLine.length - 1];
   return (
@@ -130,7 +158,7 @@ function New() {
       <br />
 
       <div className={classes.root}>
-        <Paper>
+        <Paper className={classes.section}>
           <List>
             <ListItem>
               <ListItemText
@@ -148,9 +176,97 @@ function New() {
             </ListItem>
           </List>
           <Divider />
+          <Box className={classes.form}>
+            <TextField
+              id="name"
+              name="name"
+              onChange={formik.handleChange}
+              value={formik.values.name}
+              label={t("int.vessel-name")}
+              fullWidth
+              variant="outlined"
+              margin="dense"
+            />
+            <TextField
+              id="price"
+              name="price"
+              type="number"
+              onChange={formik.handleChange}
+              value={formik.values.price}
+              label={t("int.price-price")}
+              fullWidth
+              variant="outlined"
+              margin="dense"
+            />
+            <TextField
+              id="length"
+              name="length"
+              type="number"
+              onChange={formik.handleChange}
+              value={formik.values.length}
+              label={t("int.vessel-length")}
+              fullWidth
+              variant="outlined"
+              margin="dense"
+            />
+            <TextField
+              id="draught"
+              name="draught"
+              type="number"
+              onChange={formik.handleChange}
+              value={formik.values.draught}
+              label={t("int.vessel-draught")}
+              fullWidth
+              variant="outlined"
+              margin="dense"
+            />
+            <br />
+            <br />
+            {formik.values.services.length > 0 && (
+              <Typography variant="h5">{t(`int.servicess`)}</Typography>
+            )}
+            <Grid spacing={0} container>
+              {formik.values.services.map((obj, idx) => (
+                <FormControl
+                  fullWidth
+                  className={classes.servicesCont}
+                  key={idx}
+                >
+                  <br />
+                  <Typography variant="caption">
+                    {t(`int.servicess`)} no {idx + 1}
+                  </Typography>
+                  <Divider />
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label={t("int.service-name")}
+                      variant="outlined"
+                      margin="dense"
+                    />
+                  </Grid>
+
+                  <Grid item xs={8}>
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      id="standard-multiline-flexible"
+                      label={t("int.description")}
+                      margin="dense"
+                      multiline
+                      rows={5}
+                    />
+                  </Grid>
+                </FormControl>
+              ))}
+            </Grid>
+            <Button onClick={addNewService} variant="outlined" color="primary">
+              {t("int.add-service")}
+            </Button>
+          </Box>
         </Paper>
 
-        <Paper>
+        <Paper className={cx(classes.section, "map")}>
           <List>
             <ListItem>
               <ListItemText
