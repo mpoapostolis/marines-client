@@ -13,16 +13,21 @@ import {
   Box,
   Grid,
   FormControl,
+  IconButton,
 } from "@material-ui/core";
 import { useI18n } from "../../../I18n";
 import OverTableHeader from "../../../components/OverTableHeader";
 import { useFormik } from "formik";
-
+import DeleteIcon from "@material-ui/icons/Delete";
 import "leaflet/dist/leaflet.css";
-
 import { MapContainer, TileLayer, Polygon, SVGOverlay } from "react-leaflet";
-import { LeafletMouseEvent, Map } from "leaflet";
+import { LeafletMouseEvent, Map, polyline } from "leaflet";
 import { cx } from "emotion";
+import { useMutation } from "react-query";
+import { useSnack } from "../../../provider/SnackBarProvider";
+import { createSpot, SpotInfo } from "../../../api/spots";
+
+const RANDOM_STRING = () => (Math.random() + 1).toString(36).substring(7);
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -58,19 +63,13 @@ const useStyles = makeStyles((theme) => ({
     borderTop: "solid 1px #0002",
     height: "calc(100% - 69px)",
   },
+  serviceHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
 }));
-
-type Service = {
-  name: string;
-  description: string;
-};
-type SpotInfo = {
-  name: string;
-  price: number;
-  length: number;
-  draught: number;
-  services: Service[];
-};
 
 function New() {
   const t = useI18n();
@@ -80,17 +79,60 @@ function New() {
   const [drawing, setDrawing] = useState(false);
   const lineRef = useRef<SVGLineElement>(null);
 
+  const setSnack = useSnack();
+
+  const [saveSpot] = useMutation(createSpot, {
+    onSuccess: () => {
+      setSnack({
+        msg: t("int.spot-created-successfully"),
+        severity: "success",
+      });
+    },
+    onError: () => {
+      setSnack({
+        msg: t("int.oops-something-went-wrong"),
+        severity: "error",
+      });
+    },
+  });
+
   const toggleDraw = useCallback(() => {
     setDrawing(!drawing);
   }, [drawing]);
 
-  const resetPolygon = () => setPolyLine([]);
+  const formik = useFormik<SpotInfo>({
+    initialValues: {
+      coords: [],
+      name: "",
+      price: 0,
+      length: 0,
+      draught: 0,
+      services: [],
+    },
+
+    onSubmit: (values) => {
+      saveSpot(values);
+    },
+  });
+
+  const resetPolygon = () => {
+    formik.setFieldValue("coords", []);
+    setPolyLine([]);
+  };
 
   const handleMapClick = useCallback(
     (obj: LeafletMouseEvent) => {
-      if (drawing) setPolyLine((s) => [...s, obj]);
+      if (drawing)
+        setPolyLine((s) => {
+          const coords = [...s, obj];
+          formik.setFieldValue(
+            "coords",
+            coords.map((obj) => ({ lat: obj.latlng.lat, lng: obj.latlng.lng }))
+          );
+          return coords;
+        });
     },
-    [drawing]
+    [drawing, polyline, formik]
   );
 
   const handleMoveOnMap = (obj: LeafletMouseEvent) => {
@@ -110,18 +152,6 @@ function New() {
     };
   }, [map, drawing, handleMapClick, toggleDraw, lineRef]);
 
-  const formik = useFormik<SpotInfo>({
-    initialValues: {
-      name: "",
-      price: 0,
-      length: 0,
-      draught: 0,
-      services: [],
-    },
-
-    onSubmit: (values) => {},
-  });
-
   const addNewService = () => {
     formik.setValues((v) => ({
       ...v,
@@ -130,12 +160,11 @@ function New() {
         {
           name: "",
           description: "",
+          __id: RANDOM_STRING(),
         },
       ],
     }));
   };
-
-  console.log(formik.values);
 
   const lastPoint = polyLine.length > 0 && polyLine[polyLine.length - 1];
   return (
@@ -230,15 +259,34 @@ function New() {
                 <FormControl
                   fullWidth
                   className={classes.servicesCont}
-                  key={idx}
+                  key={obj.__id}
                 >
                   <br />
-                  <Typography variant="caption">
-                    {t(`int.servicess`)} no {idx + 1}
-                  </Typography>
+                  <div className={classes.serviceHeader}>
+                    <Typography variant="caption">
+                      {t(`int.servicess`)} no {idx + 1}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        formik.setFieldValue(
+                          "services",
+                          formik.values.services.filter((_, i) => i !== idx)
+                        )
+                      }
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </div>
                   <Divider />
                   <Grid item xs={6}>
                     <TextField
+                      onChange={(evt) =>
+                        formik.setFieldValue(
+                          `services.${idx}.name`,
+                          evt.currentTarget.value
+                        )
+                      }
                       fullWidth
                       label={t("int.service-name")}
                       variant="outlined"
@@ -248,6 +296,12 @@ function New() {
 
                   <Grid item xs={8}>
                     <TextField
+                      onChange={(evt) =>
+                        formik.setFieldValue(
+                          `services.${idx}.description`,
+                          evt.currentTarget.value
+                        )
+                      }
                       variant="outlined"
                       fullWidth
                       id="standard-multiline-flexible"

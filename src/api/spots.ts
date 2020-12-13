@@ -1,36 +1,34 @@
 import api from "../ky";
-import qs from "query-string";
 
 const URL = `/api/spots`;
 
-export type PaginatedMarine = {
-  total: number;
-  data: Spot[];
+export type PaginatedSpot = {
+  data: SpotService[];
 };
 
-export type Spot = {
-  id?: string;
+export type SpotService = {
+  name: string;
+  description: string;
+  __id?: string;
+};
+
+export type SpotInfo = {
   name: string;
   price: number;
-  marine_id?: string;
   length: number;
   draught: number;
-  available: Boolean;
-  coords: number[];
-  date_created: Date;
+  services: SpotService[];
+  coords: { lat: number; lng: number }[];
 };
 
-export async function getSpots(
-  _key: string,
-  params: Record<string, string>
-): Promise<PaginatedMarine> {
-  return api.get(`${URL}?${qs.stringify(params)}`).json();
+export async function getMySpots(): Promise<PaginatedSpot> {
+  return await api.get(URL).json();
 }
 
-export async function createNewMarine(marine: Spot): Promise<Spot> {
+export async function createSpot(spot: SpotInfo) {
   return await api
     .post(URL, {
-      json: marine,
+      json: spot,
     })
     .json();
 }
