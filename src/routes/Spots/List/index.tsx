@@ -5,15 +5,10 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import OverTableHeader from "../../../components/OverTableHeader";
 import { Link, useHistory } from "react-router-dom";
 import { Button, IconButton } from "@material-ui/core";
-import {
-  queryCache,
-  useMutation,
-  usePaginatedQuery,
-  useQuery,
-} from "react-query";
+import { queryCache, useMutation, usePaginatedQuery } from "react-query";
 import MTable from "../../../components/Table";
 import { Columns } from "../../../components/Table/types";
-import { formatDate, getAllParams } from "../../../utils";
+import { getAllParams } from "../../../utils";
 import { useSnack } from "../../../provider/SnackBarProvider";
 import { deleteSpot, getMySpots, SpotInfo } from "../../../api/spots";
 
@@ -22,12 +17,12 @@ function List() {
   const history = useHistory();
   const params = getAllParams(history.location.search);
 
-  const { data: spots = { total: 0, data: [] }, isFetching } = useQuery(
-    ["spots", params],
-    getMySpots
-  );
+  const {
+    resolvedData: spots = { total: 0, data: [] },
+    isFetching,
+  } = usePaginatedQuery(["spots", params], getMySpots);
 
-  const [_deleteMarine] = useMutation(deleteSpot, {
+  useMutation(deleteSpot, {
     onSuccess: () => {
       setSnack({
         msg: t("int.marine-deleted-successfully"),

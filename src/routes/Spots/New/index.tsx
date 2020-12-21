@@ -21,7 +21,7 @@ import { useFormik } from "formik";
 import DeleteIcon from "@material-ui/icons/Delete";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Polygon, SVGOverlay } from "react-leaflet";
-import { LeafletMouseEvent, Map, polyline } from "leaflet";
+import { LeafletMouseEvent, Map } from "leaflet";
 import { cx } from "emotion";
 import { useMutation } from "react-query";
 import { useSnack } from "../../../provider/SnackBarProvider";
@@ -132,7 +132,7 @@ function New() {
           return coords;
         });
     },
-    [drawing, polyline, formik]
+    [drawing, formik]
   );
 
   const handleMoveOnMap = (obj: LeafletMouseEvent) => {

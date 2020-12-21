@@ -30,7 +30,7 @@ const dateNow = format(new Date(), "EEEE dd MMMM yyyy");
 const URL = "/api/users/login";
 
 type Creds = {
-  user_name: string;
+  userName: string;
   password: string;
 };
 
@@ -43,7 +43,7 @@ const Login = () => {
   const account = useAccount();
   const token = account.token;
   const [infos, setInfos] = useState({
-    user_name: "",
+    userName: "",
     password: "",
   });
   const [err, setErr] = useState({});
@@ -92,12 +92,12 @@ const Login = () => {
             <TextField
               onChange={(evt) =>
                 handleChange({
-                  user_name: evt.currentTarget.value,
+                  userName: evt.currentTarget.value,
                 })
               }
-              error={Boolean(R.propOr("", "user_name", err))}
-              helperText={R.propOr("", "user_name", err)}
-              label={t("int.user_name")}
+              error={Boolean(R.propOr("", "userName", err))}
+              helperText={R.propOr("", "userName", err)}
+              label={t("int.userName")}
               required
               variant="outlined"
               fullWidth

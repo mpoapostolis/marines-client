@@ -20,6 +20,7 @@ import TimelineIcon from "@material-ui/icons/Timeline";
 import Profile from "./Profiles";
 import LocalParkingIcon from "@material-ui/icons/LocalParking";
 import DirectionsBoatIcon from "@material-ui/icons/DirectionsBoat";
+import AuthWrapper from "../AuthWrapper";
 
 const useStyles = makeStyles((theme: Theme) => ({
   drawer: {
@@ -101,27 +102,26 @@ function Menu(props: Props) {
       icon: <DashboardIcon className="icon" fontSize="small" />,
       exact: true,
       perm: [],
-      //   perm: ['report:view']
     },
     {
       title: t("int.spots"),
       href: "/spots",
       icon: <LocalParkingIcon className="icon" fontSize="small" />,
-      perm: [],
+      perm: ["view:spots", "edit:spots"],
     },
 
     {
       title: t("int.marines"),
       href: "/marines",
       icon: <DirectionsBoatIcon className="icon" fontSize="small" />,
-      perm: [],
+      perm: ["view:marines", "edit:marines"],
     },
 
     {
       title: t("int.history"),
       href: "/history",
       icon: <TimelineIcon className="icon" fontSize="small" />,
-      perm: [],
+      perm: ["view:history", "edit:history"],
     },
   ];
   const classes = useStyles();
@@ -142,29 +142,30 @@ function Menu(props: Props) {
 
         <List>
           {pages.map((page) => (
-            <ListItem
-              button
-              className={classes.listItem}
-              exact={page.exact}
-              component={CustomRouterLink}
-              activeClassName={classes.active}
-              to={page.href}
-              key={page.title}
-              disableGutters
-            >
-              <ListItemIcon>{page.icon}</ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography
-                    className="typography"
-                    color="textSecondary"
-                    variant="h6"
-                  >
-                    {page.title}
-                  </Typography>
-                }
-              />
-            </ListItem>
+            <AuthWrapper redirect key={page.title} reqPerm={page.perm}>
+              <ListItem
+                button
+                className={classes.listItem}
+                exact={page.exact}
+                component={CustomRouterLink}
+                activeClassName={classes.active}
+                to={page.href}
+                disableGutters
+              >
+                <ListItemIcon>{page.icon}</ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography
+                      className="typography"
+                      color="textSecondary"
+                      variant="h6"
+                    >
+                      {page.title}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            </AuthWrapper>
           ))}
         </List>
       </div>

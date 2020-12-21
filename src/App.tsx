@@ -11,7 +11,7 @@ import theme from "./theme";
 import I18n from "./I18n";
 import Login from "./routes/Login";
 import Layout from "./Layout";
-// import PrivateRoute from "./components/PrivateRoute";
+import PrivateRoute from "./components/PrivateRoute";
 import AccountProvider, { useAccount } from "./provider";
 import SnackBarProvider from "./provider/SnackBarProvider";
 
@@ -31,7 +31,7 @@ function App() {
             <SnackBarProvider>
               <Switch>
                 <LoginWrapper exact path="/login" component={Login} />
-                <Route path="/" component={Layout} />
+                <PrivateRoute path="/" component={Layout} />
               </Switch>
             </SnackBarProvider>
           </BrowserRouter>
