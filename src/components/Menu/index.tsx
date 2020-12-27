@@ -142,7 +142,7 @@ function Menu(props: Props) {
 
         <List>
           {pages.map((page) => (
-            <AuthWrapper redirect key={page.title} reqPerm={page.perm}>
+            <AuthWrapper key={page.title} reqPerm={page.perm}>
               <ListItem
                 button
                 className={classes.listItem}

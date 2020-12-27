@@ -13,6 +13,7 @@ export type SpotService = {
 };
 
 export type SpotInfo = {
+  _id?: string;
   name: string;
   price: number;
   length: number;

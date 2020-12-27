@@ -6,7 +6,9 @@ import OverTableHeader from "../../../components/OverTableHeader";
 import { Link, useHistory } from "react-router-dom";
 import { Button, IconButton } from "@material-ui/core";
 import { deleteMarine, getMarines, Marine } from "../../../api/marines";
-import { queryCache, useMutation, usePaginatedQuery } from "react-query";
+import { useMutation } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+
 import MTable from "../../../components/Table";
 import { Columns } from "../../../components/Table/types";
 import { formatDate, getTableParams } from "../../../utils";
@@ -16,18 +18,21 @@ function List() {
   const setSnack = useSnack();
   const history = useHistory();
   const params = getTableParams(history.location.search);
-  const {
-    resolvedData: marines = { total: 0, data: [] },
-    isFetching,
-  } = usePaginatedQuery(["marines", params], getMarines);
+  const queryClient = useQueryClient();
 
-  const [_deleteMarine] = useMutation(deleteMarine, {
+  const { data: marines = { total: 0, data: [] }, isFetching } = useQuery(
+    ["marines", params],
+    getMarines,
+    { keepPreviousData: true }
+  );
+
+  const { mutate: _deleteMarine } = useMutation(deleteMarine, {
     onSuccess: () => {
       setSnack({
         msg: t("int.marine-deleted-successfully"),
         severity: "success",
       });
-      queryCache.invalidateQueries("marines");
+      queryClient.invalidateQueries("marines");
     },
     onError: () => {
       setSnack({
@@ -49,12 +54,16 @@ function List() {
       title: t("int.actions"),
       render: (obj: Marine) => (
         <>
-          <IconButton size={"small"} title={t("int.edit")}>
+          <IconButton
+            onClick={() => history.push(`/marines/${obj._id}`)}
+            size={"small"}
+            title={t("int.edit")}
+          >
             <EditIcon />
           </IconButton>
           &nbsp; &nbsp;
           <IconButton
-            onClick={() => _deleteMarine(obj.id)}
+            onClick={() => _deleteMarine(`${obj._id}`)}
             size={"small"}
             title={t("int.delete")}
           >

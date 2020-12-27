@@ -81,7 +81,7 @@ function New() {
 
   const setSnack = useSnack();
 
-  const [saveSpot] = useMutation(createSpot, {
+  const { mutate: saveSpot } = useMutation(createSpot, {
     onSuccess: () => {
       setSnack({
         msg: t("int.spot-created-successfully"),

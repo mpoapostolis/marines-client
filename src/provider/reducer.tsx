@@ -54,7 +54,7 @@ function reducer(state: Store, action: Action) {
         // expRToken: expRToken * 1000,
       };
     case LOGOUT:
-      clearKey("__account");
+      clearKey(LOCAL_STORAGE_AUTH_KEY);
       return undefined;
 
     default:

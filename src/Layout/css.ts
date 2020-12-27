@@ -5,9 +5,9 @@ export const container = css`
   min-height: 100vh;
   display: grid;
   &.isSmallDevice {
-    grid-template-columns: 0px 1fr;
+    grid-template-columns: 0px 100vw;
   }
-  grid-template-columns: minmax(50px, 220px) 1fr;
+  grid-template-columns: 220px calc(100vw - 220px);
   grid-template-rows: 64px 100%;
   grid-template-areas:
     "header header"

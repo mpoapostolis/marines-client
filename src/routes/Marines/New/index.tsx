@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   TextField,
   makeStyles,
@@ -15,9 +15,14 @@ import { useI18n } from "../../../I18n";
 import OverTableHeader from "../../../components/OverTableHeader";
 import { useFormik } from "formik";
 
-import { useMutation } from "react-query";
-import { createNewMarine, Marine } from "../../../api/marines";
-import { useHistory } from "react-router-dom";
+import { useMutation, useQuery } from "react-query";
+import {
+  createNewMarine,
+  updateMarine,
+  Marine,
+  getMarineById,
+} from "../../../api/marines";
+import { useHistory, useParams } from "react-router-dom";
 import { useSnack } from "../../../provider/SnackBarProvider";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -31,31 +36,43 @@ function New() {
   const t = useI18n();
   const styles = useStyles();
   const history = useHistory();
+  const params = useParams<{ id: string }>();
 
   const setSnack = useSnack();
-
-  const [saveMarine] = useMutation(createNewMarine, {
-    onSuccess: () => {
-      setSnack({
-        msg: t("int.marine-created-successfully"),
-        severity: "success",
-      });
-      history.push("/marines");
-    },
-    onError: () => {
-      setSnack({
-        msg: t("int.oops-something-went-wrong"),
-        severity: "error",
-      });
+  useQuery(["marine", params.id], getMarineById, {
+    enabled: params.id !== "new",
+    onSuccess: (m: Marine) => {
+      formik.setFieldValue("name", m.name);
     },
   });
+
+  const { mutate: saveMarine } = useMutation(
+    params.id !== "new" ? updateMarine : createNewMarine,
+    {
+      onSuccess: () => {
+        setSnack({
+          msg: params.id
+            ? t("int.marine-updated-successfully")
+            : t("int.marine-created-successfully"),
+          severity: "success",
+        });
+        history.push("/marines");
+      },
+      onError: () => {
+        setSnack({
+          msg: t("int.oops-something-went-wrong"),
+          severity: "error",
+        });
+      },
+    }
+  );
 
   const formik = useFormik<Marine>({
     initialValues: {
       name: "",
     },
     onSubmit: (values) => {
-      saveMarine(values);
+      saveMarine({ id: params.id, ...values });
     },
   });
 
@@ -82,7 +99,11 @@ function New() {
           <ListItem>
             <ListItemText
               primary={
-                <Typography variant="h5">{t("int.create-new-info")}</Typography>
+                <Typography variant="h5">
+                  {params.id !== "new"
+                    ? t("int.update-info")
+                    : t("int.create-new-info")}
+                </Typography>
               }
               secondary={
                 <Typography variant="subtitle2">

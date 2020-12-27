@@ -1,7 +1,7 @@
-import React from 'react';
-import { Redirect } from 'react-router-dom';
-import intersection from 'ramda/src/intersection';
-import { useAccount } from '../../provider';
+import React from "react";
+import { Redirect } from "react-router-dom";
+import intersection from "ramda/src/intersection";
+import { useAccount } from "../../provider";
 
 /**
  * @prop {string[]} reqPerm
@@ -26,7 +26,7 @@ function AuthWrapper(props: IProps) {
 
   if (hasPerm) return props.children;
   else if (redirect) {
-    return <Redirect to={{ pathname: '/not-found' }} />;
+    return <Redirect to={{ pathname: "/not-found" }} />;
   } else return null;
 }
 
