@@ -4,11 +4,11 @@ import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import OverTableHeader from "../../../components/OverTableHeader";
 import { Link, useHistory } from "react-router-dom";
-import { Button, IconButton } from "@material-ui/core";
+import { Button, IconButton, Typography } from "@material-ui/core";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import MTable from "../../../components/Table";
 import { Columns } from "../../../components/Table/types";
-import { getAllParams } from "../../../utils";
+import { EUROSIGN, getAllParams } from "../../../utils";
 import { useSnack } from "../../../provider/SnackBarProvider";
 import { deleteSpot, getMySpots, SpotInfo } from "../../../api/spots";
 import IconRepresentation from "../../../components/IconRepresentation";
@@ -29,10 +29,10 @@ function List() {
     }
   );
 
-  useMutation(deleteSpot, {
+  const { mutate: _deleteSpot } = useMutation(deleteSpot, {
     onSuccess: () => {
       setSnack({
-        msg: t("int.marine-deleted-successfully"),
+        msg: t("int.spot-deleted-successfully"),
         severity: "success",
       });
       queryClient.invalidateQueries("spots");
@@ -49,9 +49,54 @@ function List() {
 
   const conf: Columns = [
     { title: t("int.name"), key: "name" },
-    { title: t("int.draught"), key: "draught" },
-    { title: t("int.length"), key: "length" },
-    { title: t("int.price"), key: "price" },
+    {
+      title: t("int.draught"),
+      render: (obj) => (
+        <>
+          <Typography component="span">{obj.draught}</Typography>
+          &nbsp;
+          <Typography variant="caption" component="span">
+            {t("int.meters")}
+          </Typography>
+        </>
+      ),
+    },
+    {
+      title: t("int.length"),
+      render: (obj) => (
+        <>
+          <Typography component="span">{obj.length}</Typography>
+          &nbsp;
+          <Typography variant="caption" component="span">
+            {t("int.meters")}
+          </Typography>
+        </>
+      ),
+    },
+    {
+      title: t("int.width"),
+      render: (obj) => (
+        <>
+          <Typography component="span">{obj.width}</Typography>
+          &nbsp;
+          <Typography variant="caption" component="span">
+            {t("int.meters")}
+          </Typography>
+        </>
+      ),
+    },
+    {
+      title: t("int.price"),
+      render: (obj) => (
+        <>
+          <Typography component="span">{obj.price}</Typography>
+          &nbsp;
+          <Typography variant="caption" component="span">
+            {EUROSIGN}
+          </Typography>
+        </>
+      ),
+    },
     {
       title: t("int.services"),
       render: (obj: SpotInfo) => (
@@ -74,7 +119,11 @@ function List() {
             <EditIcon />
           </IconButton>
           &nbsp; &nbsp;
-          <IconButton size="small" title={t("int.delete")}>
+          <IconButton
+            onClick={() => _deleteSpot(`${obj._id}`)}
+            size="small"
+            title={t("int.delete")}
+          >
             <DeleteIcon />
           </IconButton>
         </>

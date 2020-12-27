@@ -25,8 +25,20 @@ import { LeafletMouseEvent, Map } from "leaflet";
 import { cx } from "emotion";
 import { useMutation, useQuery } from "react-query";
 import { useSnack } from "../../../provider/SnackBarProvider";
-import { createSpot, getSpotById, SpotInfo } from "../../../api/spots";
-import { useParams } from "react-router-dom";
+import {
+  createSpot,
+  getSpotById,
+  SpotInfo,
+  updateSpot,
+} from "../../../api/spots";
+import { useHistory, useParams } from "react-router-dom";
+import LocationSearchingIcon from "@material-ui/icons/LocationSearching";
+import { EUROSIGN } from "../../../utils";
+
+const COORDS = {
+  lat: 23.727539,
+  lng: 37.98381,
+};
 
 const RANDOM_STRING = () => (Math.random() + 1).toString(36).substring(7);
 
@@ -77,6 +89,7 @@ const defaultSpot = {
   name: "",
   price: 0,
   length: 0,
+  width: 0,
   draught: 0,
   services: [],
 };
@@ -89,32 +102,51 @@ function New() {
   const [drawing, setDrawing] = useState(false);
   const lineRef = useRef<SVGLineElement>(null);
   const params = useParams<{ id: string }>();
+  const history = useHistory();
+
+  const getMyLocation = () =>
+    navigator.geolocation.getCurrentPosition((pos) => {
+      map?.flyTo([pos.coords.latitude, pos.coords.longitude], 17);
+    });
 
   const { data: spot = defaultSpot } = useQuery(
     ["spot", params.id],
     getSpotById,
     {
-      enabled: Boolean(params.id),
-      onSuccess: (spot) => {},
+      enabled: params.id !== "new",
+      onSuccess: (spot) => {
+        // @ts-ignore
+        setPolyLine(spot.coords.map((o) => ({ latlng: o })));
+        const [f = COORDS] = spot?.coords;
+
+        if (f) map?.flyTo([f.lat, f.lng], 15);
+      },
     }
   );
 
   const setSnack = useSnack();
+  const { mutate: saveSpot } = useMutation(
+    params.id !== "new" ? updateSpot : createSpot,
+    {
+      onSuccess: () => {
+        history.push("/spots");
+        setSnack({
+          msg:
+            params.id !== "new"
+              ? t("int.spot-updated-successfully")
+              : t("int.spot-created-successfully"),
 
-  const { mutate: saveSpot } = useMutation(createSpot, {
-    onSuccess: () => {
-      setSnack({
-        msg: t("int.spot-created-successfully"),
-        severity: "success",
-      });
-    },
-    onError: () => {
-      setSnack({
-        msg: t("int.oops-something-went-wrong"),
-        severity: "error",
-      });
-    },
-  });
+          severity: "success",
+        });
+      },
+      onError: () => {
+        setSnack({
+          msg: t("int.oops-something-went-wrong"),
+          severity: "error",
+        });
+      },
+    }
+  );
 
   const toggleDraw = useCallback(() => {
     setDrawing(!drawing);
@@ -125,7 +157,8 @@ function New() {
     initialValues: spot,
 
     onSubmit: (values) => {
-      saveSpot(values);
+      const { _id, ...rest } = values;
+      saveSpot({ id: params.id, ...rest });
     },
   });
 
@@ -207,7 +240,9 @@ function New() {
               <ListItemText
                 primary={
                   <Typography variant="h5">
-                    {t("int.create-new-info")}
+                    {params.id !== "new"
+                      ? t("int.update-info")
+                      : t("int.create-new-info")}
                   </Typography>
                 }
                 secondary={
@@ -234,8 +269,11 @@ function New() {
               id="price"
               name="price"
               type="number"
+              InputProps={{
+                endAdornment: EUROSIGN,
+              }}
               onChange={formik.handleChange}
-              value={formik.values.price}
+              value={formik.values.price ?? ""}
               label={t("int.price-price")}
               fullWidth
               variant="outlined"
@@ -243,6 +281,9 @@ function New() {
             />
             <TextField
               id="length"
+              InputProps={{
+                endAdornment: t("int.meters"),
+              }}
               name="length"
               type="number"
               onChange={formik.handleChange}
@@ -253,8 +294,25 @@ function New() {
               margin="dense"
             />
             <TextField
+              id="length"
+              InputProps={{
+                endAdornment: t("int.meters"),
+              }}
+              name="width"
+              type="number"
+              onChange={formik.handleChange}
+              value={formik.values.width ?? 0}
+              label={t("int.spot-width")}
+              fullWidth
+              variant="outlined"
+              margin="dense"
+            />
+            <TextField
               id="draught"
               name="draught"
+              InputProps={{
+                endAdornment: t("int.meters"),
+              }}
               type="number"
               onChange={formik.handleChange}
               value={formik.values.draught}
@@ -352,9 +410,20 @@ function New() {
                 }
               />
               <ListItemSecondaryAction>
+                <Button
+                  startIcon={<LocationSearchingIcon />}
+                  color="primary"
+                  variant="outlined"
+                  onClick={getMyLocation}
+                  size="small"
+                >
+                  {t("int.locate-me")}
+                </Button>
+                &nbsp; &nbsp;
                 {Boolean(polyLine.length > 1) && !drawing && (
                   <Button
                     color="primary"
+                    size="small"
                     variant="outlined"
                     onClick={resetPolygon}
                   >
@@ -365,6 +434,7 @@ function New() {
                 {(polyLine.length < 1 || drawing) && (
                   <Button
                     color="primary"
+                    size="small"
                     variant="contained"
                     onClick={toggleDraw}
                   >
@@ -378,8 +448,8 @@ function New() {
           <MapContainer
             whenCreated={setMap}
             className={classes.mapContainer}
-            center={[51.505, -0.09]}
-            zoom={13}
+            center={[37.98381, 23.727539]}
+            zoom={17}
           >
             <Polygon
               pathOptions={{ color: "purple" }}
