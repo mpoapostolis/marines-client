@@ -100,7 +100,7 @@ function List() {
         }
       />
       <br />
-      {/* <MTable total={100} loading={isFetching} conf={conf} {...spots} /> */}
+      <MTable loading={isFetching} conf={conf} {...spots} />
     </>
   );
 }

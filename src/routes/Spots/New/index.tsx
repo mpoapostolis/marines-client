@@ -23,9 +23,10 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Polygon, SVGOverlay } from "react-leaflet";
 import { LeafletMouseEvent, Map } from "leaflet";
 import { cx } from "emotion";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useSnack } from "../../../provider/SnackBarProvider";
-import { createSpot, SpotInfo } from "../../../api/spots";
+import { createSpot, getSpotById, SpotInfo } from "../../../api/spots";
+import { useParams } from "react-router-dom";
 
 const RANDOM_STRING = () => (Math.random() + 1).toString(36).substring(7);
 
@@ -71,6 +72,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const defaultSpot = {
+  coords: [],
+  name: "",
+  price: 0,
+  length: 0,
+  draught: 0,
+  services: [],
+};
+
 function New() {
   const t = useI18n();
   const classes = useStyles();
@@ -78,6 +88,16 @@ function New() {
   const [polyLine, setPolyLine] = useState<LeafletMouseEvent[]>([]);
   const [drawing, setDrawing] = useState(false);
   const lineRef = useRef<SVGLineElement>(null);
+  const params = useParams<{ id: string }>();
+
+  const { data: spot = defaultSpot } = useQuery(
+    ["spot", params.id],
+    getSpotById,
+    {
+      enabled: Boolean(params.id),
+      onSuccess: (spot) => {},
+    }
+  );
 
   const setSnack = useSnack();
 
@@ -101,14 +121,8 @@ function New() {
   }, [drawing]);
 
   const formik = useFormik<SpotInfo>({
-    initialValues: {
-      coords: [],
-      name: "",
-      price: 0,
-      length: 0,
-      draught: 0,
-      services: [],
-    },
+    enableReinitialize: true,
+    initialValues: spot,
 
     onSubmit: (values) => {
       saveSpot(values);
@@ -211,7 +225,7 @@ function New() {
               name="name"
               onChange={formik.handleChange}
               value={formik.values.name}
-              label={t("int.vessel-name")}
+              label={t("int.spot-name")}
               fullWidth
               variant="outlined"
               margin="dense"
@@ -233,7 +247,7 @@ function New() {
               type="number"
               onChange={formik.handleChange}
               value={formik.values.length}
-              label={t("int.vessel-length")}
+              label={t("int.spot-length")}
               fullWidth
               variant="outlined"
               margin="dense"
@@ -244,7 +258,7 @@ function New() {
               type="number"
               onChange={formik.handleChange}
               value={formik.values.draught}
-              label={t("int.vessel-draught")}
+              label={t("int.spot-draught")}
               fullWidth
               variant="outlined"
               margin="dense"
@@ -287,6 +301,7 @@ function New() {
                           evt.currentTarget.value
                         )
                       }
+                      value={obj.name}
                       fullWidth
                       label={t("int.service-name")}
                       variant="outlined"
@@ -296,6 +311,7 @@ function New() {
 
                   <Grid item xs={8}>
                     <TextField
+                      value={obj.description}
                       onChange={(evt) =>
                         formik.setFieldValue(
                           `services.${idx}.description`,

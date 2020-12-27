@@ -1,9 +1,11 @@
+import { QueryFunctionContext } from "react-query";
 import api from "../ky";
 
 const URL = `/api/spots`;
 
 export type PaginatedSpot = {
   data: SpotService[];
+  total: number;
 };
 
 export type SpotService = {
@@ -24,6 +26,13 @@ export type SpotInfo = {
 
 export async function getMySpots(): Promise<PaginatedSpot> {
   return await api.get(URL).json();
+}
+
+export async function getSpotById(
+  c: QueryFunctionContext<[string, string]>
+): Promise<SpotInfo> {
+  const [, id] = c.queryKey;
+  return await api.get(`${URL}/${id}`).json();
 }
 
 export async function createSpot(spot: SpotInfo) {
