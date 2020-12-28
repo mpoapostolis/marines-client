@@ -16,11 +16,11 @@ import {
 import { NavLink } from "react-router-dom";
 import { makeStyles } from "@material-ui/styles";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import TimelineIcon from "@material-ui/icons/Timeline";
 import Profile from "./Profiles";
 import LocalParkingIcon from "@material-ui/icons/LocalParking";
 import DirectionsBoatIcon from "@material-ui/icons/DirectionsBoat";
 import AuthWrapper from "../AuthWrapper";
+import EventAvailableIcon from "@material-ui/icons/EventAvailable";
 
 const useStyles = makeStyles((theme: Theme) => ({
   drawer: {
@@ -118,10 +118,10 @@ function Menu(props: Props) {
     },
 
     {
-      title: t("int.history"),
-      href: "/history",
-      icon: <TimelineIcon className="icon" fontSize="small" />,
-      perm: ["view:history", "edit:history"],
+      title: t("int.reservations"),
+      href: "/reservations",
+      icon: <EventAvailableIcon className="icon" fontSize="small" />,
+      perm: ["view:reservations"],
     },
   ];
   const classes = useStyles();

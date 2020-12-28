@@ -148,6 +148,11 @@ function New() {
     }
   );
 
+  useEffect(() => {
+    if (drawing) map?.doubleClickZoom.disable();
+    else map?.doubleClickZoom.enable();
+  }, [drawing, map]);
+
   const toggleDraw = useCallback(() => {
     setDrawing(!drawing);
   }, [drawing]);
@@ -172,6 +177,7 @@ function New() {
       if (drawing)
         setPolyLine((s) => {
           const coords = [...s, obj];
+
           formik.setFieldValue(
             "coords",
             coords.map((obj) => ({ lat: obj.latlng.lat, lng: obj.latlng.lng }))
@@ -190,7 +196,7 @@ function New() {
   useEffect(() => {
     map?.on("click", handleMapClick);
     map?.on("mousemove", handleMoveOnMap);
-    map?.on("dblclick", toggleDraw);
+    if (drawing) map?.on("dblclick", toggleDraw);
 
     return () => {
       map?.off("click", handleMapClick);
