@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from "react";
-import Menu from "../components/Menu";
+import React, { useEffect } from "react";
 import Header from "../components/Header";
-import { container } from "./css";
-import { cx } from "emotion";
-import { Theme, useMediaQuery } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
+import { container, footer, main } from "./css";
 import Routes from "../routes";
 import { LOGOUT } from "../provider/names";
 import { useAccount } from "../provider";
 import { QueryClient, QueryClientProvider } from "react-query";
-
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    marginTop: theme.spacing(2),
-    padding: theme.spacing(3),
-    gridArea: "main",
-  },
-  content: {},
-}));
+import LabelBottomNavigation from "../components/BottomNavigation";
+import { cx } from "emotion";
 
 const queryClient = new QueryClient();
 
@@ -42,28 +31,16 @@ function Layout() {
     // login();
   }, []);
 
-  const isSmallDevice = useMediaQuery("(max-width:600px)");
-
-  const [open, setOpen] = useState(!isSmallDevice);
-  const classes = useStyles();
-
-  useEffect(() => {
-    setOpen(!isSmallDevice);
-  }, [isSmallDevice]);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <div className={cx(container, { isSmallDevice })}>
-        <Header setOpen={() => setOpen(true)} />
-
-        <Menu
-          isSmallDevice={isSmallDevice}
-          open={open}
-          setOpen={() => setOpen(false)}
-        />
-        <main className={classes.root}>
+      <div className={container}>
+        <Header />
+        <main className={cx(main, "container")}>
           <Routes />
         </main>
+        <footer className={footer}>
+          <LabelBottomNavigation />
+        </footer>
       </div>
     </QueryClientProvider>
   );

@@ -8,11 +8,9 @@ import { Button, IconButton, Typography } from "@material-ui/core";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import MTable from "../../../components/Table";
 import { Columns } from "../../../components/Table/types";
-import { EUROSIGN, getAllParams } from "../../../utils";
+import { getAllParams } from "../../../utils";
 import { useSnack } from "../../../provider/SnackBarProvider";
 import { deleteSpot, getMySpots, SpotInfo } from "../../../api/spots";
-import IconRepresentation from "../../../components/IconRepresentation";
-import EvStationIcon from "@material-ui/icons/EvStation";
 
 function List() {
   const setSnack = useSnack();
@@ -21,8 +19,8 @@ function List() {
 
   const queryClient = useQueryClient();
 
-  const { data: spots = { total: 0, data: [] }, isFetching } = useQuery(
-    ["spots", params],
+  const { data: vessels = { total: 0, data: [] }, isFetching } = useQuery(
+    ["vessels", params],
     getMySpots,
     {
       keepPreviousData: true,
@@ -35,7 +33,7 @@ function List() {
         msg: t("int.spot-deleted-successfully"),
         severity: "success",
       });
-      queryClient.invalidateQueries("spots");
+      queryClient.invalidateQueries("vessels");
     },
     onError: () => {
       setSnack({
@@ -53,8 +51,8 @@ function List() {
       title: t("int.draught"),
       render: (obj) => (
         <>
-          <Typography component="span">{obj.draught}</Typography>
-          &nbsp;
+          <Typography component="span">{obj.draught ?? "-"}</Typography>
+          <br />
           <Typography variant="caption" component="span">
             {t("int.meters")}
           </Typography>
@@ -65,8 +63,8 @@ function List() {
       title: t("int.length"),
       render: (obj) => (
         <>
-          <Typography component="span">{obj.length}</Typography>
-          &nbsp;
+          <Typography component="span">{obj.length ?? "-"}</Typography>
+          <br />
           <Typography variant="caption" component="span">
             {t("int.meters")}
           </Typography>
@@ -77,43 +75,22 @@ function List() {
       title: t("int.width"),
       render: (obj) => (
         <>
-          <Typography component="span">{obj.width}</Typography>
-          &nbsp;
+          <Typography component="span">{obj.width ?? "-"}</Typography>
+          <br />
           <Typography variant="caption" component="span">
             {t("int.meters")}
           </Typography>
         </>
       ),
     },
-    {
-      title: t("int.price"),
-      render: (obj) => (
-        <>
-          <Typography component="span">{obj.price}</Typography>
-          &nbsp;
-          <Typography variant="caption" component="span">
-            {EUROSIGN}
-          </Typography>
-        </>
-      ),
-    },
-    {
-      title: t("int.services"),
-      render: (obj: SpotInfo) => (
-        <IconRepresentation howMany={obj.services.length}>
-          <IconButton>
-            <EvStationIcon />
-          </IconButton>
-        </IconRepresentation>
-      ),
-    },
+
     {
       title: t("int.actions"),
       render: (obj: SpotInfo) => (
         <>
           <IconButton
             size="small"
-            onClick={() => history.push(`/spots/${obj._id}`)}
+            onClick={() => history.push(`/vessels/${obj._id}`)}
             title={t("int.edit")}
           >
             <EditIcon />
@@ -134,13 +111,13 @@ function List() {
   return (
     <>
       <OverTableHeader
-        title={t("int.spots")}
+        title={t("int.vessels")}
         actions={
           <>
             <Button
               size="small"
               component={Link}
-              to={"/spots/new"}
+              to={"/vessels/new"}
               variant="outlined"
             >
               {t("int.create-new-spot")}
@@ -149,7 +126,7 @@ function List() {
         }
       />
       <br />
-      <MTable loading={isFetching} conf={conf} {...spots} />
+      <MTable loading={isFetching} conf={conf} {...vessels} />
     </>
   );
 }

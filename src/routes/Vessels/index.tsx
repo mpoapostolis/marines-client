@@ -6,8 +6,8 @@ import New from "./New";
 function Spots() {
   return (
     <Switch>
-      <Route path="/spots" exact component={List} />
-      <Route path="/spots/:id" exact component={New} />
+      <Route path="/vessels" exact component={List} />
+      <Route path="/vessels/:id" exact component={New} />
     </Switch>
   );
 }
