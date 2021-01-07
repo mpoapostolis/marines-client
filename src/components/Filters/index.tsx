@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 import { addDays, format } from "date-fns";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import LocationOffIcon from "@material-ui/icons/LocationOff";
-import React from "react";
+import React, { useState } from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -20,12 +20,17 @@ import Typography from "@material-ui/core/Typography";
 import CloseIcon from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
 import { TransitionProps } from "@material-ui/core/transitions";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import DateRangeIcon from "@material-ui/icons/DateRange";
+
 import {
   Checkbox,
   FormControlLabel,
   Grid,
   ListItemIcon,
   MenuItem,
+  Popover,
   Switch,
   TextField,
 } from "@material-ui/core";
@@ -81,7 +86,27 @@ type Props = {
   setOpen: (b: boolean) => void;
 };
 export default function FullScreenDialog(props: Props) {
+  const [dates, setDates] = useState<Date[]>();
+
   const classes = useStyles();
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const handleChangeDate = (d: Date[] | Date) => {
+    const tmp = d as Date[];
+    setDates(tmp);
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseDate = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
 
   const handleClickOpen = () => {
     props.setOpen(true);
@@ -110,7 +135,6 @@ export default function FullScreenDialog(props: Props) {
           >
             <CloseIcon />
           </IconButton>
-          <Typography variant="h6" className={classes.title}></Typography>
           <Button autoFocus color="inherit" onClick={handleClose}>
             {t("int.search")}
           </Button>
@@ -169,35 +193,22 @@ export default function FullScreenDialog(props: Props) {
         <br />
 
         <Typography variant="h5">{t("int.dates")}</Typography>
-
         <Grid container spacing={1} justify="flex-end">
-          <Grid item xs={6}>
-            <TextField
-              label={t("int.start-date")}
-              placeholder="---"
-              className={inputClass}
-              type="date"
+          <Grid item xs={12}>
+            <Button
               variant="outlined"
-              margin="dense"
+              startIcon={<DateRangeIcon />}
+              onClick={handleClick}
               fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label={t("int.end-date")}
-              onChange={(evt) => console.log(evt.currentTarget.value)}
-              className={inputClass}
-              type="date"
-              variant="outlined"
-              margin="dense"
-              fullWidth
-            />
+            >
+              {t(`int.from:-  int.to:-`)}
+            </Button>
           </Grid>
         </Grid>
 
         <br />
 
-        <Typography variant="h5">{t("int.locate-me")}</Typography>
+        <Typography variant="h5">{t("int.near-me")}</Typography>
         <TextField
           className={inputClass}
           variant="outlined"
@@ -237,6 +248,23 @@ export default function FullScreenDialog(props: Props) {
           ))}
         </Grid>
       </div>
+
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleCloseDate}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <Calendar selectRange onChange={handleChangeDate} value={dates} />
+      </Popover>
     </Dialog>
   );
 }
