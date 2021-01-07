@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   createStyles,
   Divider,
   Grid,
@@ -13,12 +14,14 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import React, { useState } from "react";
 import { useI18n } from "../../I18n";
 import { img, paper } from "./css";
 import Avatar from "@material-ui/core/Avatar";
 import { Rating } from "@material-ui/lab";
 import WifiIcon from "@material-ui/icons/Wifi";
+import { EUROSIGN } from "../../utils";
+import BookingDialog from "../../components/Booking";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,7 +35,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function Spot() {
-  const t = useI18n();
+  const [open, $setOpen] = useState(false);
+  const setOpen = (b: boolean) => $setOpen(b);
   const classes = useStyles();
 
   return (
@@ -43,67 +47,54 @@ function Spot() {
       />
       <br />
       <br />
-      <br />
       <Typography variant="h4">Marina Zeas</Typography>
-      <Typography variant="h6">Spot: A3</Typography>
       <br />
+      <Typography variant="h6">Spot: A3</Typography>
+      <Typography>Price: 12{EUROSIGN} / day</Typography>
+      <br />
+
+      <Button
+        onClick={() => setOpen(true)}
+        color="primary"
+        fullWidth
+        variant="contained"
+      >
+        Book Now
+      </Button>
+      <br />
+      <br />
+
       <hr />
       <br />
-      <Grid container spacing={2}>
-        <Grid item xs={12} lg={6}>
-          <List className={classes.root}>
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <React.Fragment key={num}>
-                <ListItem alignItems="flex-start">
-                  <ListItemAvatar>
-                    <WifiIcon />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Brunch this weekend?"
-                    secondary={
-                      <React.Fragment>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          className={classes.inline}
-                          color="textPrimary"
-                        >
-                          Ali Connors
-                        </Typography>
-                        {" — I'll be in your neighborhood doing errands this…"}
-                      </React.Fragment>
-                    }
-                  />
-                </ListItem>
-                <Divider variant="inset" component="li" />
-              </React.Fragment>
-            ))}
-          </List>
-        </Grid>
-        <Grid item xs={12} lg={6}>
-          <Grid container spacing={1} justify="flex-end">
-            <Grid item xs={6}>
-              <TextField
-                label={t("int.start-date")}
-                type="date"
-                variant="outlined"
-                margin="dense"
-                fullWidth
+      <List className={classes.root}>
+        {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+          <React.Fragment key={num}>
+            <ListItem alignItems="flex-start">
+              <ListItemAvatar>
+                <WifiIcon />
+              </ListItemAvatar>
+              <ListItemText
+                primary="Brunch this weekend?"
+                secondary={
+                  <React.Fragment>
+                    <Typography
+                      component="span"
+                      variant="body2"
+                      className={classes.inline}
+                      color="textPrimary"
+                    >
+                      Ali Connors
+                    </Typography>
+                    {" — I'll be in your neighborhood doing errands this…"}
+                  </React.Fragment>
+                }
               />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label={t("int.end-date")}
-                onChange={(evt) => console.log(evt.currentTarget.value)}
-                type="date"
-                variant="outlined"
-                margin="dense"
-                fullWidth
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+            </ListItem>
+            <Divider variant="inset" component="li" />
+          </React.Fragment>
+        ))}
+      </List>
+      <BookingDialog open={open} setOpen={setOpen} />
     </div>
   );
 }
