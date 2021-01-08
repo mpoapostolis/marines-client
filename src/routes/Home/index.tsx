@@ -1,39 +1,23 @@
-import {
-  Button,
-  Fab,
-  FormControlLabel,
-  Grid,
-  Icon,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
-  Switch,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Button, Grid } from "@material-ui/core";
+import { useQuery } from "react-query";
+import { getMySpots } from "../../api/spots";
+
 import React, { useState } from "react";
 import MediaCard from "../../components/Card";
 import { useI18n } from "../../I18n";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import { css } from "emotion";
-import { addDays, format } from "date-fns";
-import { useHistory } from "react-router-dom";
 
 import FilterListIcon from "@material-ui/icons/FilterList";
 import FullScreenDialog from "../../components/Filters";
-
-const inputClass = css`
-  background: white;
-`;
 
 function Home() {
   const t = useI18n();
 
   const [open, $setOpen] = useState(false);
   const setOpen = (b: boolean) => $setOpen(b);
+
+  const { data: spots } = useQuery(["spots"], getMySpots, {
+    keepPreviousData: true,
+  });
 
   return (
     <>
@@ -50,45 +34,11 @@ function Home() {
       <br />
       <br />
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <MediaCard />
-        </Grid>
+        {spots?.data.map((obj) => (
+          <Grid key={obj._id} item xs={12} sm={6} md={4} lg={3}>
+            <MediaCard {...obj} />
+          </Grid>
+        ))}
       </Grid>
 
       <FullScreenDialog open={open} setOpen={setOpen} />

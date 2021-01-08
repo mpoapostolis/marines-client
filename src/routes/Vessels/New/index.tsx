@@ -18,13 +18,12 @@ import "leaflet/dist/leaflet.css";
 import { useMutation, useQuery } from "react-query";
 import { useSnack } from "../../../provider/SnackBarProvider";
 import {
-  createSpot,
-  getSpotById,
-  SpotInfo,
-  updateSpot,
-} from "../../../api/spots";
+  createVessel,
+  getVesselById,
+  updateVessel,
+  Vessel,
+} from "../../../api/vessels";
 import { useHistory, useParams } from "react-router-dom";
-import { EUROSIGN } from "../../../utils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -69,13 +68,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const defaultSpot = {
-  coords: [],
   name: "",
-  price: 0,
   length: 0,
   width: 0,
   draught: 0,
-  services: [],
 };
 
 function New() {
@@ -84,25 +80,25 @@ function New() {
   const params = useParams<{ id: string }>();
   const history = useHistory();
 
-  const { data: spot = defaultSpot } = useQuery(
-    ["spot", params.id],
-    getSpotById,
+  const { data: vessel = defaultSpot } = useQuery(
+    ["vessel", params.id],
+    getVesselById,
     {
       enabled: params.id !== "new",
     }
   );
 
   const setSnack = useSnack();
-  const { mutate: saveSpot } = useMutation(
-    params.id !== "new" ? updateSpot : createSpot,
+  const { mutate: saveVessel } = useMutation(
+    params.id !== "new" ? updateVessel : createVessel,
     {
       onSuccess: () => {
-        history.push("/spots");
+        history.push("/vessels");
         setSnack({
           msg:
             params.id !== "new"
-              ? t("int.spot-updated-successfully")
-              : t("int.spot-created-successfully"),
+              ? t("int.vessel-updated-successfully")
+              : t("int.vessel-created-successfully"),
 
           severity: "success",
         });
@@ -116,13 +112,13 @@ function New() {
     }
   );
 
-  const formik = useFormik<SpotInfo>({
+  const formik = useFormik<Vessel>({
     enableReinitialize: true,
-    initialValues: spot,
+    initialValues: vessel,
 
     onSubmit: (values) => {
       const { _id, ...rest } = values;
-      saveSpot({ id: params.id, ...rest });
+      saveVessel({ _id: params.id, ...rest });
     },
   });
   return (
@@ -170,26 +166,13 @@ function New() {
               id="name"
               name="name"
               onChange={formik.handleChange}
-              value={formik.values.name}
-              label={t("int.spot-name")}
+              value={formik.values?.name}
+              label={t("int.vessel-name")}
               fullWidth
               variant="outlined"
               margin="dense"
             />
-            <TextField
-              id="price"
-              name="price"
-              type="number"
-              InputProps={{
-                endAdornment: EUROSIGN,
-              }}
-              onChange={formik.handleChange}
-              value={formik.values.price ?? ""}
-              label={t("int.price-price")}
-              fullWidth
-              variant="outlined"
-              margin="dense"
-            />
+
             <TextField
               id="length"
               InputProps={{
@@ -198,8 +181,8 @@ function New() {
               name="length"
               type="number"
               onChange={formik.handleChange}
-              value={formik.values.length}
-              label={t("int.spot-length")}
+              value={formik.values?.length}
+              label={t("int.vessel-length")}
               fullWidth
               variant="outlined"
               margin="dense"
@@ -212,8 +195,8 @@ function New() {
               name="width"
               type="number"
               onChange={formik.handleChange}
-              value={formik.values.width ?? 0}
-              label={t("int.spot-width")}
+              value={formik.values?.width ?? 0}
+              label={t("int.vessel-width")}
               fullWidth
               variant="outlined"
               margin="dense"
@@ -226,8 +209,8 @@ function New() {
               }}
               type="number"
               onChange={formik.handleChange}
-              value={formik.values.draught}
-              label={t("int.spot-draught")}
+              value={formik.values?.draught}
+              label={t("int.vessel-draught")}
               fullWidth
               variant="outlined"
               margin="dense"

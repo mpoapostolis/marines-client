@@ -6,7 +6,7 @@ export const formatDate = (d?: Date) => {
   if (!d) return "-";
   const date = new Date(d);
 
-  return format(date.getTime(), "d MMM yyy, HH:mm");
+  return format(date.getTime(), "d MMM yyy");
 };
 
 export const debounce = (func: any, wait: any, immediate?: any) => {

@@ -10,7 +10,7 @@ import MTable from "../../../components/Table";
 import { Columns } from "../../../components/Table/types";
 import { getAllParams } from "../../../utils";
 import { useSnack } from "../../../provider/SnackBarProvider";
-import { deleteSpot, getMySpots, SpotInfo } from "../../../api/spots";
+import { getMyVessels, deleteVessel, Vessel } from "../../../api/vessels";
 
 function List() {
   const setSnack = useSnack();
@@ -21,13 +21,13 @@ function List() {
 
   const { data: vessels = { total: 0, data: [] }, isFetching } = useQuery(
     ["vessels", params],
-    getMySpots,
+    getMyVessels,
     {
       keepPreviousData: true,
     }
   );
 
-  const { mutate: _deleteSpot } = useMutation(deleteSpot, {
+  const { mutate: _deleteVessel } = useMutation(deleteVessel, {
     onSuccess: () => {
       setSnack({
         msg: t("int.spot-deleted-successfully"),
@@ -86,7 +86,7 @@ function List() {
 
     {
       title: t("int.actions"),
-      render: (obj: SpotInfo) => (
+      render: (obj: Vessel) => (
         <>
           <IconButton
             size="small"
@@ -97,7 +97,7 @@ function List() {
           </IconButton>
           &nbsp; &nbsp;
           <IconButton
-            onClick={() => _deleteSpot(`${obj._id}`)}
+            onClick={() => _deleteVessel(`${obj._id}`)}
             size="small"
             title={t("int.delete")}
           >

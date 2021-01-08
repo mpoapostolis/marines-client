@@ -1,18 +1,11 @@
 import { useI18n } from "../../I18n";
-
+import qs from "query-string";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import { useHistory } from "react-router-dom";
-import { addDays, format } from "date-fns";
-import LocationOnIcon from "@material-ui/icons/LocationOn";
-import LocationOffIcon from "@material-ui/icons/LocationOff";
 import React, { useState } from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItem from "@material-ui/core/ListItem";
-import List from "@material-ui/core/List";
-import Divider from "@material-ui/core/Divider";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -21,27 +14,40 @@ import CloseIcon from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
 import { TransitionProps } from "@material-ui/core/transitions";
 import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import DateRangeIcon from "@material-ui/icons/DateRange";
-
+import getTime from "date-fns/getTime";
+import { getAllParams, formatDate } from "../../utils";
 import {
   Checkbox,
   FormControlLabel,
   Grid,
-  ListItemIcon,
   MenuItem,
   Popover,
-  Switch,
   TextField,
 } from "@material-ui/core";
 import { css, cx } from "emotion";
+import { useQuery } from "react-query";
+import { getMyVessels } from "../../api/vessels";
+import { getMarines } from "../../api/marines";
+import "react-calendar/dist/Calendar.css";
+import { useSnack } from "../../provider/SnackBarProvider";
 
 const inputClass = css`
   background: white;
+  margin: 0px !important;
+`;
+
+const title = css`
+  margin-bottom: 8px !important;
 `;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    textField: {
+      border: "solid 1px #0003",
+      padding: theme.spacing(1, 2),
+      borderRadius: "4px",
+    },
+
     appBar: {
       position: "fixed",
     },
@@ -55,25 +61,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const currencies = [
-  {
-    value: "USD",
-    label: "$",
-  },
-  {
-    value: "EUR",
-    label: "€",
-  },
-  {
-    value: "BTC",
-    label: "฿",
-  },
-  {
-    value: "JPY",
-    label: "¥",
-  },
-];
-
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children?: React.ReactElement },
   ref: React.Ref<unknown>
@@ -81,23 +68,32 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+type Filters = {
+  from?: string;
+  to?: string;
+  vesselId?: string;
+  marineId?: string;
+  latLng?: string;
+  services?: string[];
+};
+
 type Props = {
   open: boolean;
   setOpen: (b: boolean) => void;
 };
 export default function FullScreenDialog(props: Props) {
-  const [dates, setDates] = useState<Date[]>();
+  const history = useHistory();
+  const params = getAllParams(history.location.search);
 
   const classes = useStyles();
+  const setSnack = useSnack();
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
 
-  const handleChangeDate = (d: Date[] | Date) => {
-    const tmp = d as Date[];
-    setDates(tmp);
-  };
+  const { data: vessels } = useQuery("vessels", getMyVessels);
+  const { data: marines } = useQuery("marines", getMarines);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -105,23 +101,48 @@ export default function FullScreenDialog(props: Props) {
     setAnchorEl(null);
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
-
-  const handleClickOpen = () => {
-    props.setOpen(true);
-  };
-
   const handleClose = () => {
     props.setOpen(false);
   };
   const t = useI18n();
-  const history = useHistory();
+
+  const pushParams = (obj: Record<string, any>) => {
+    history.push({
+      search: qs.stringify({ ...params, ...obj }),
+    });
+  };
+
+  const selectVessel = (vesselId: string) => {
+    const v = vessels?.data.find((v) => v._id === vesselId);
+    const { draught, length, width } = v || {};
+    pushParams({ vesselId, draught, length, width });
+  };
+
+  const setPos = (r: string) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        pushParams({
+          radius: r,
+          latitude: pos.coords?.latitude,
+          longitude: pos.coords?.longitude,
+        });
+      },
+      (err) =>
+        setSnack({
+          msg: err.message,
+          severity: "error",
+        })
+    );
+  };
+
+  const from = params.from as string;
+  const to = params.to as string;
+
   return (
     <Dialog
       fullScreen
-      open={props.open}
-      //   open
+      // open={props.open}
+      open
       onClose={handleClose}
       TransitionComponent={Transition}
     >
@@ -144,19 +165,26 @@ export default function FullScreenDialog(props: Props) {
 
       <div className={cx(classes.main, "container")}>
         <br />
-        <Typography variant="h5">{t("int.vessel")}</Typography>
-
+        <Typography className={title} variant="h5">
+          {t("int.vessel")}
+        </Typography>
         <TextField
           className={inputClass}
           variant="outlined"
           margin="dense"
           fullWidth
+          value={params.vesselId ?? ""}
+          onChange={(evt) => {
+            selectVessel(evt.target.value);
+          }}
           label={t("int.pick-your-vessel")}
           select
         >
-          {currencies.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
+          <MenuItem>{t("int.all")}</MenuItem>
+
+          {vessels?.data.map((obj) => (
+            <MenuItem key={obj._id} value={obj._id}>
+              {obj.name}
             </MenuItem>
           ))}
         </TextField>
@@ -173,8 +201,9 @@ export default function FullScreenDialog(props: Props) {
         <br />
         <br />
 
-        <Typography variant="h5">{t("int.marine")}</Typography>
-
+        <Typography className={title} variant="h5">
+          {t("int.marine")}
+        </Typography>
         <TextField
           className={inputClass}
           variant="outlined"
@@ -182,55 +211,75 @@ export default function FullScreenDialog(props: Props) {
           fullWidth
           label={t("int.pick-your-vessel")}
           select
+          value={params.marineId ?? ""}
+          onChange={(evt) => {
+            pushParams({ marineId: evt.target.value });
+          }}
         >
-          {currencies.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
+          <MenuItem>{t("int.all")}</MenuItem>
+
+          {marines?.data.map((obj) => (
+            <MenuItem key={obj._id} value={obj._id}>
+              {obj.name}
             </MenuItem>
           ))}
         </TextField>
         <br />
         <br />
 
-        <Typography variant="h5">{t("int.dates")}</Typography>
+        <Typography className={title} variant="h5">
+          {t("int.dates")}
+        </Typography>
         <Grid container spacing={1} justify="flex-end">
           <Grid item xs={12}>
-            <Button
-              variant="outlined"
-              startIcon={<DateRangeIcon />}
-              onClick={handleClick}
-              fullWidth
-            >
-              {t(`int.from:-  int.to:-`)}
-            </Button>
+            <div className={classes.textField} onClick={handleClick}>
+              {from || to
+                ? `${from && formatDate(new Date(+from))} -
+              ${to && formatDate(new Date(+to))}
+           `
+                : t("int.dates")}
+            </div>
           </Grid>
         </Grid>
 
         <br />
 
-        <Typography variant="h5">{t("int.near-me")}</Typography>
+        <Typography className={title} variant="h5">
+          {t("int.near-me")}
+        </Typography>
         <TextField
           className={inputClass}
           variant="outlined"
           margin="dense"
           fullWidth
-          label={t("int.pick-your-vessel")}
+          label={t("int.find-spots-in-radius")}
           select
-          onSelect={console.log}
+          value={params.radius ?? ""}
+          onChange={(evt) => {
+            if (evt.target.value === undefined)
+              pushParams({
+                radius: undefined,
+                latitude: undefined,
+                longitude: undefined,
+              });
+            else setPos(evt.target.value);
+          }}
         >
-          <MenuItem key="on" value="on">
-            {t("int.on")}
-          </MenuItem>
+          <MenuItem>{t("int-everywhere")}</MenuItem>
 
-          <MenuItem key="off" value="off">
-            {t("int.off")}
-          </MenuItem>
+          {[1, 2, 4, 5, 10, 15, 20, 25].map((kiloMeters) => (
+            <MenuItem key={kiloMeters} value={kiloMeters}>
+              {kiloMeters}km
+            </MenuItem>
+          ))}
         </TextField>
 
         <br />
         <br />
 
-        <Typography variant="h5">{t("int.services")}</Typography>
+        <Typography className={title} variant="h5">
+          {t("int.services")}
+        </Typography>
         <Grid container>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
             <Grid key={num} item xs={6}>
@@ -250,8 +299,7 @@ export default function FullScreenDialog(props: Props) {
       </div>
 
       <Popover
-        id={id}
-        open={open}
+        open={Boolean(anchorEl)}
         anchorEl={anchorEl}
         onClose={handleCloseDate}
         anchorOrigin={{
@@ -263,7 +311,30 @@ export default function FullScreenDialog(props: Props) {
           horizontal: "center",
         }}
       >
-        <Calendar selectRange onChange={handleChangeDate} value={dates} />
+        <Calendar
+          value={from && to ? [new Date(+from), new Date(+to)] : undefined}
+          onChange={(dates) => {
+            const [f, t] = dates as Date[];
+            pushParams({
+              from: getTime(f),
+              to: getTime(t),
+            });
+            setAnchorEl(null);
+          }}
+          selectRange
+        />
+        <Button
+          fullWidth
+          onClick={() => {
+            pushParams({
+              from: undefined,
+              to: undefined,
+            });
+            setAnchorEl(null);
+          }}
+        >
+          Clear
+        </Button>
       </Popover>
     </Dialog>
   );

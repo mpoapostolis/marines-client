@@ -22,7 +22,7 @@ const Routes = () => (
           <Home />
         </AuthWrapper>
       </Route>
-      <Route component={Spot} path="/:id" />
+      <Route component={Spot} path="/spots/:id" />
       <Redirect to="/not-found" />
     </Switch>
   </>

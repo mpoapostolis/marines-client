@@ -1,27 +1,23 @@
 import {
-  Box,
   Button,
   createStyles,
-  Divider,
-  Grid,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
   makeStyles,
-  Paper,
-  TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
 import React, { useState } from "react";
 import { useI18n } from "../../I18n";
-import { img, paper } from "./css";
+import { img } from "./css";
 import Avatar from "@material-ui/core/Avatar";
-import { Rating } from "@material-ui/lab";
-import WifiIcon from "@material-ui/icons/Wifi";
 import { EUROSIGN } from "../../utils";
 import BookingDialog from "../../components/Booking";
+import { useParams } from "react-router-dom";
+import { getSpotById } from "../../api/spots";
+import { useQuery } from "react-query";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -35,22 +31,31 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function Spot() {
+  const params = useParams<{ id: string }>();
   const [open, $setOpen] = useState(false);
   const setOpen = (b: boolean) => $setOpen(b);
   const classes = useStyles();
+  const t = useI18n();
+  const { data: spot } = useQuery(["spot", params.id], getSpotById);
 
   return (
     <div>
       <img
+        alt="cover"
         className={img}
         src="https://images.unsplash.com/photo-1605868051021-57af43fb8f8f?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80"
       />
       <br />
       <br />
-      <Typography variant="h4">Marina Zeas</Typography>
+      <Typography variant="h4">{spot?.marineName}</Typography>
       <br />
-      <Typography variant="h6">Spot: A3</Typography>
-      <Typography>Price: 12{EUROSIGN} / day</Typography>
+      <Typography variant="h6">
+        {t("int.spot")} {spot?.name}
+      </Typography>
+      <Typography>
+        {t("int.price")}: {spot?.price}
+        {EUROSIGN} / {t("int.day")}
+      </Typography>
       <br />
 
       <Button
@@ -67,31 +72,25 @@ function Spot() {
       <hr />
       <br />
       <List className={classes.root}>
-        {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-          <React.Fragment key={num}>
-            <ListItem alignItems="flex-start">
-              <ListItemAvatar>
-                <WifiIcon />
-              </ListItemAvatar>
-              <ListItemText
-                primary="Brunch this weekend?"
-                secondary={
-                  <React.Fragment>
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      className={classes.inline}
-                      color="textPrimary"
-                    >
-                      Ali Connors
-                    </Typography>
-                    {" — I'll be in your neighborhood doing errands this…"}
-                  </React.Fragment>
-                }
-              />
-            </ListItem>
-            <Divider variant="inset" component="li" />
-          </React.Fragment>
+        {spot?.services.map((obj) => (
+          <ListItem key={obj.__id} alignItems="flex-start">
+            <ListItemAvatar>
+              <Avatar>{obj.name[0]}</Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={<Typography variant="h5">{obj.name}</Typography>}
+              secondary={
+                <Typography
+                  component="span"
+                  variant="subtitle2"
+                  className={classes.inline}
+                  color="textSecondary"
+                >
+                  {obj.description}
+                </Typography>
+              }
+            />
+          </ListItem>
         ))}
       </List>
       <BookingDialog open={open} setOpen={setOpen} />

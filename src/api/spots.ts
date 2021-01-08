@@ -4,7 +4,7 @@ import api from "../ky";
 const URL = `/api/spots`;
 
 export type PaginatedSpot = {
-  data: SpotService[];
+  data: SpotInfo[];
   total: number;
 };
 
@@ -19,6 +19,7 @@ export type SpotInfo = {
   name: string;
   price: number;
   length: number;
+  marineName?: string;
   width: number;
   draught: number;
   services: SpotService[];
