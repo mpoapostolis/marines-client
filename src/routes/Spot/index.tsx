@@ -1,16 +1,14 @@
 import {
   Button,
   createStyles,
-  Grid,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
   makeStyles,
-  Theme,
   Typography,
 } from "@material-ui/core";
-import React, { useState } from "react";
+import React from "react";
 import { useI18n } from "../../I18n";
 import { img } from "./css";
 import Avatar from "@material-ui/core/Avatar";
@@ -21,7 +19,7 @@ import { getSpotById } from "../../api/spots";
 import { useQuery } from "react-query";
 import SpotInfoLine from "../../components/SpotInfoLine";
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     root: {
       width: "100%",

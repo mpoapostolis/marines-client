@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { css } from "emotion";
 import React from "react";
 

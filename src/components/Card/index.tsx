@@ -13,7 +13,6 @@ import { useHistory } from "react-router-dom";
 import { SpotInfo } from "../../api/spots";
 import { EUROSIGN } from "../../utils";
 import SpotInfoLine from "../SpotInfoLine";
-import { Grid } from "@material-ui/core";
 
 const useStyles = makeStyles({
   root: {
