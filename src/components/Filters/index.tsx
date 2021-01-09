@@ -68,15 +68,6 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-type Filters = {
-  from?: string;
-  to?: string;
-  vesselId?: string;
-  marineId?: string;
-  latLng?: string;
-  services?: string[];
-};
-
 type Props = {
   open: boolean;
   setOpen: (b: boolean) => void;
@@ -137,12 +128,21 @@ export default function FullScreenDialog(props: Props) {
 
   const from = params.from as string;
   const to = params.to as string;
+  const clearFilters = () =>
+    pushParams(
+      Object.keys(params).reduce(
+        (acc, curr) => ({
+          ...acc,
+          [curr]: undefined,
+        }),
+        {}
+      )
+    );
 
   return (
     <Dialog
       fullScreen
-      // open={props.open}
-      open
+      open={props.open}
       onClose={handleClose}
       TransitionComponent={Transition}
     >
@@ -151,11 +151,15 @@ export default function FullScreenDialog(props: Props) {
           <IconButton
             edge="start"
             color="inherit"
-            onClick={handleClose}
+            onClick={() => {
+              clearFilters();
+              handleClose();
+            }}
             aria-label="close"
           >
             <CloseIcon />
           </IconButton>
+          <span className={classes.title} />
           <Button autoFocus color="inherit" onClick={handleClose}>
             {t("int.search")}
           </Button>

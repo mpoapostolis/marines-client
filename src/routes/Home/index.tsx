@@ -8,14 +8,18 @@ import { useI18n } from "../../I18n";
 
 import FilterListIcon from "@material-ui/icons/FilterList";
 import FullScreenDialog from "../../components/Filters";
+import { useHistory } from "react-router-dom";
+import { getAllParams } from "../../utils";
 
 function Home() {
   const t = useI18n();
+  const history = useHistory();
+  const params = getAllParams(history.location.search);
 
   const [open, $setOpen] = useState(false);
   const setOpen = (b: boolean) => $setOpen(b);
 
-  const { data: spots } = useQuery(["spots"], getMySpots, {
+  const { data: spots } = useQuery(["spots", params], getMySpots, {
     keepPreviousData: true,
   });
 

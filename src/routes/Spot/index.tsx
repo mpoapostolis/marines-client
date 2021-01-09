@@ -1,6 +1,7 @@
 import {
   Button,
   createStyles,
+  Grid,
   List,
   ListItem,
   ListItemAvatar,
@@ -14,10 +15,11 @@ import { useI18n } from "../../I18n";
 import { img } from "./css";
 import Avatar from "@material-ui/core/Avatar";
 import { EUROSIGN } from "../../utils";
-import BookingDialog from "../../components/Booking";
+// import BookingDialog from "../../components/Booking";
 import { useParams } from "react-router-dom";
 import { getSpotById } from "../../api/spots";
 import { useQuery } from "react-query";
+import SpotInfoLine from "../../components/SpotInfoLine";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,8 +34,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function Spot() {
   const params = useParams<{ id: string }>();
-  const [open, $setOpen] = useState(false);
-  const setOpen = (b: boolean) => $setOpen(b);
+  // const [open, $setOpen] = useState(false);
+  // const setOpen = (b: boolean) => $setOpen(b);
   const classes = useStyles();
   const t = useI18n();
   const { data: spot } = useQuery(["spot", params.id], getSpotById);
@@ -52,14 +54,29 @@ function Spot() {
       <Typography variant="h6">
         {t("int.spot")} {spot?.name}
       </Typography>
-      <Typography>
-        {t("int.price")}: {spot?.price}
-        {EUROSIGN} / {t("int.day")}
-      </Typography>
+
+      <br />
+      <SpotInfoLine
+        title={t("int.price")}
+        value={`${spot?.price}`}
+        subNot={`${EUROSIGN} / ${t("int.day")}`}
+      />
+
+      <SpotInfoLine
+        title={t("int.width")}
+        value={`${spot?.draught}`}
+        subNot={t("int.meters")}
+      />
+      <SpotInfoLine
+        title={t("int.length")}
+        value={`${spot?.length}`}
+        subNot={t("int.meters")}
+      />
+      <br />
       <br />
 
       <Button
-        onClick={() => setOpen(true)}
+        // onClick={() => setOpen(true)}
         color="primary"
         fullWidth
         variant="contained"
@@ -93,7 +110,7 @@ function Spot() {
           </ListItem>
         ))}
       </List>
-      <BookingDialog open={open} setOpen={setOpen} />
+      {/* <BookingDialog open={open} setOpen={setOpen} /> */}
     </div>
   );
 }

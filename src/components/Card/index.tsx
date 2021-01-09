@@ -12,16 +12,23 @@ import { useI18n } from "../../I18n";
 import { useHistory } from "react-router-dom";
 import { SpotInfo } from "../../api/spots";
 import { EUROSIGN } from "../../utils";
+import SpotInfoLine from "../SpotInfoLine";
+import { Grid } from "@material-ui/core";
 
 const useStyles = makeStyles({
   root: {
     height: "100%",
+  },
+  title: {
+    border: "solid 1px red",
+    width: "150px",
   },
   chip: {
     margin: "0 5px",
   },
   boxCont: {
     width: "100%",
+    display: "inline",
     overflowX: "scroll",
   },
   media: {
@@ -44,15 +51,34 @@ export default function MediaCard(props: SpotInfo) {
 
         <CardContent>
           <Typography variant="h5">{props.marineName}</Typography>
-          <br />
           <Typography variant="subtitle2">
             {t("int.spot")}: {props.name}
           </Typography>
 
-          <Typography variant="caption">
-            {t("int.price")}: {props.price}
-            {EUROSIGN} / {t("int.day")}
-          </Typography>
+          <br />
+
+          <SpotInfoLine
+            title={t("int.price")}
+            value={`${props.price}`}
+            subNot={`${EUROSIGN} / ${t("int.day")}`}
+          />
+
+          <SpotInfoLine
+            title={t("int.width")}
+            value={`${props.draught}`}
+            subNot={t("int.meters")}
+          />
+          <SpotInfoLine
+            title={t("int.length")}
+            value={`${props.length}`}
+            subNot={t("int.meters")}
+          />
+
+          <SpotInfoLine
+            title={t("int.services")}
+            value={`${props.services.length}`}
+            subNot={`x ${t("int.services")}`}
+          />
         </CardContent>
       </CardActionArea>
       <CardActions>

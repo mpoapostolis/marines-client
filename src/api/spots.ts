@@ -1,4 +1,5 @@
 import { QueryFunctionContext } from "react-query";
+import qs from "query-string";
 import api from "../ky";
 
 const URL = `/api/spots`;
@@ -26,8 +27,10 @@ export type SpotInfo = {
   coords: { lat: number; lng: number }[];
 };
 
-export async function getMySpots(): Promise<PaginatedSpot> {
-  return await api.get(URL).json();
+export async function getMySpots(
+  c: QueryFunctionContext<[string, Record<string, string>]>
+): Promise<PaginatedSpot> {
+  return await api.get(`${URL}?${qs.stringify(c.queryKey[1])}`).json();
 }
 
 export async function getSpotById(
